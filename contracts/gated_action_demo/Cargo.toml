@@ -9,6 +9,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 soroban-sdk = { version = "22.0.0", features = ["testutils"] }
 cloakwork-types = { path = "../../contracts/cloakwork-types" }
+cloakwork-sdk = { path = "../../sdk/cloakwork-sdk" }
 
 [dev-dependencies]
 soroban-sdk = { version = "22.0.0", features = ["testutils"] }
