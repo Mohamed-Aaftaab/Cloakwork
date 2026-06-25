@@ -1,0 +1,24 @@
+{
+  "_comment": "Example witness for Cloakwork circuit. Replace with real values from your DNS + DNSSEC material.",
+  "_note": "All field values must be decimal strings (Circom expects decimal, not hex).",
+
+  "domain_bytes_hash": "1234567890123456789012345678901234567890123456789012345678901234",
+  "record_bytes_hash":  "2345678901234567890123456789012345678901234567890123456789012345",
+  "owner_bytes_hash":   "3456789012345678901234567890123456789012345678901234567890123456",
+  "dnskey_chain_hash":  "4567890123456789012345678901234567890123456789012345678901234567",
+
+  "nonce":  "9999999999999999999999999999999999999999999999999999999999999999",
+  "secret": "8888888888888888888888888888888888888888888888888888888888888888",
+
+  "rrsig_not_before": "1700000000",
+  "rrsig_not_after":  "1702592000",
+
+  "domain_commitment": "0",
+  "record_commitment": "0",
+  "owner_commitment":  "0",
+  "nullifier":         "0",
+  "not_before":        "1700000000",
+  "not_after":         "1702592000",
+  "dnskey_root_hash":  "4567890123456789012345678901234567890123456789012345678901234567",
+  "verifier_version":  "1"
+}

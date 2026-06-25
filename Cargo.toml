@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "contracts/cloakwork-types",
+    "contracts/cloakwork_verifier",
+    "contracts/cloakwork_registry",
+    "contracts/gated_action_demo",
+    "sdk/cloakwork-sdk",
+]
+resolver = "2"
