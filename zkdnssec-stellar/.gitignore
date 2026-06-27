@@ -1,0 +1,6 @@
+/target
+**/target
+Cargo.lock
+proofs/
+contracts/fixtures/
+.env
