@@ -1,0 +1,13 @@
+[package]
+name = "zkdnssec-program"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+risc0-zkvm = { version = "1.2", default-features = false, features = ["std"] }
+alloy-sol-types = "0.7.7"
+zkdnssec-lib = { path = "../lib" }
+
+[[bin]]
+name = "zkdnssec-program"
+path = "src/main.rs"
