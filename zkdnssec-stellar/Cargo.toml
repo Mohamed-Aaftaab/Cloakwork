@@ -1,0 +1,17 @@
+[workspace]
+members = ["lib", "scripts"]
+exclude = ["program", "contracts", "stretch/noir-circuit", "stretch/ultrahonk-contract"]
+resolver = "2"
+
+# program/ is a RISC0 guest crate (its own toolchain/target via risc0_build) and
+# contracts/ is a Soroban wasm32 crate — both are kept out of this host workspace,
+# same as upstream RISC0 / Soroban project layouts.
+
+[workspace.dependencies]
+alloy-sol-types = "0.7.7"
+rsa = { version = "0.9.6", features = ["sha2"] }
+crypto-bigint = "0.5.5"
+sha2 = "0.10.8"
+ecdsa = { version = "0.16.9" }
+p256 = { version = "0.13.2" }
+serde = { version = "1", features = ["derive"] }
