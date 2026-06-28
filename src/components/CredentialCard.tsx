@@ -58,7 +58,7 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
       </div>
 
       <div style={{ padding: '0.875rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#0f0f1a' }}>
-        {[
+        {([
           ['Owner', truncate(credential.owner)],
           ['Commitment', truncate(credential.commitment, 12, 12)],
           ['Nullifier', truncate(credential.nullifier, 12, 12)],
@@ -66,10 +66,10 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
           ['Expires', formatTs(credential.expiresAt)],
           ['Circuit version', `v${credential.verifierVersion}`],
           credential.registryContractId ? ['Registry contract', truncate(credential.registryContractId, 8, 8)] : null,
-        ].filter(Boolean).map(([label, value]) => (
-          <div key={label as string} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+        ] as ([string, string] | null)[]).filter((x): x is [string, string] => x !== null).map(([label, value]) => (
+          <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
             <span style={{ color: '#718096' }}>{label}</span>
-            <span style={{ color: '#e2e8f0', fontFamily: 'monospace' }}>{value as string}</span>
+            <span style={{ color: '#e2e8f0', fontFamily: 'monospace' }}>{value}</span>
           </div>
         ))}
 

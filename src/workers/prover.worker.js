@@ -1,4 +1,5 @@
 /* eslint-disable no-restricted-globals */
+/* global BigInt */
 /**
  * Cloakwork proof generation Web Worker.
  *
