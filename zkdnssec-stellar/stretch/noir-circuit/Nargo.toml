@@ -1,0 +1,13 @@
+[package]
+name = "zkdnssec_noir"
+type = "bin"
+authors = [""]
+compiler_version = ">=0.34.0"
+
+# Stretch-goal circuit (see PRD §9): re-expresses the ECDSA-P256 RRSIG check
+# from `lib/src/lib.rs::verify_ecdsa_signature` as Noir constraints, for a
+# smaller UltraHonk proof verified via
+# https://github.com/yugocabrio/rs-soroban-ultrahonk or
+# https://github.com/indextree/ultrahonk_soroban_contract instead of RISC0.
+
+[dependencies]
