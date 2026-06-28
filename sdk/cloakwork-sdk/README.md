@@ -114,6 +114,6 @@ pub use cloakwork_types::{CredentialStatus, DomainCredential};
 
 ## Deployed Registry (Stellar testnet)
 
-`cloakwork_registry`: *(see DEPLOYMENT.md for deployed contract ID)*
+`cloakwork_registry`: `CBIACVGBZHTQLUGFEL52GUI6B4FYE7TVR2GOV4G6UO45X6FSFGO6IYB3`
 
-Stellar Expert: https://stellar.expert/explorer/testnet
+[View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CBIACVGBZHTQLUGFEL52GUI6B4FYE7TVR2GOV4G6UO45X6FSFGO6IYB3)

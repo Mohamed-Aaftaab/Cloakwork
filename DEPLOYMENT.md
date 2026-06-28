@@ -144,8 +144,11 @@ TTL values used:
 
 | Contract | ID |
 |---|---|
-| `cloakwork_verifier` | *(fill in after deployment)* |
-| `cloakwork_registry` | *(fill in after deployment)* |
-| `gated_action_demo` | *(fill in after deployment)* |
+| `cloakwork_verifier` | `CAWS5HXLKELNROV2G23IWS4QY5DU5NSNLPD7WN4NAZKTN53D55IYTN6E` |
+| `cloakwork_registry` | `CBIACVGBZHTQLUGFEL52GUI6B4FYE7TVR2GOV4G6UO45X6FSFGO6IYB3` |
+| `gated_action_demo` | `CCJ3EVUUWQINTVKRTD6LSBL7IKMUYAHIJ4X3SATV2MKRLVS67J6KUQFP` |
 
-View on [Stellar Expert](https://stellar.expert/explorer/testnet).
+View on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet):
+- [Verifier](https://stellar.expert/explorer/testnet/contract/CAWS5HXLKELNROV2G23IWS4QY5DU5NSNLPD7WN4NAZKTN53D55IYTN6E)
+- [Registry](https://stellar.expert/explorer/testnet/contract/CBIACVGBZHTQLUGFEL52GUI6B4FYE7TVR2GOV4G6UO45X6FSFGO6IYB3)
+- [GatedAction](https://stellar.expert/explorer/testnet/contract/CCJ3EVUUWQINTVKRTD6LSBL7IKMUYAHIJ4X3SATV2MKRLVS67J6KUQFP)
