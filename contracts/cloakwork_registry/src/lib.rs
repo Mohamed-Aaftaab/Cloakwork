@@ -2,7 +2,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, panic_with_error, Address, Bytes, BytesN, Env, Vec,
+    contract, contractimpl, contracttype, panic_with_error, Address, Bytes, BytesN, Env, IntoVal, Vec,
 };
 use cloakwork_types::{
     CredentialStatus, DomainCredential, PublicInputs, RegistryError,
@@ -409,7 +409,7 @@ mod tests {
         env
     }
 
-    fn deploy_registry(env: &Env) -> (Address, CloakworkRegistryClient) {
+    fn deploy_registry(env: &Env) -> (Address, CloakworkRegistryClient<'_>) {
         let id = env.register(CloakworkRegistry, ());
         let client = CloakworkRegistryClient::new(env, &id);
         (id, client)
@@ -419,7 +419,7 @@ mod tests {
         env.register(MockVerifier, ())
     }
 
-    fn deploy_and_init(env: &Env) -> (Address, CloakworkRegistryClient, Address, Address) {
+    fn deploy_and_init(env: &Env) -> (Address, CloakworkRegistryClient<'_>, Address, Address) {
         let admin = Address::generate(env);
         let verifier = deploy_mock_verifier(env);
         let (id, client) = deploy_registry(env);
@@ -503,7 +503,7 @@ mod tests {
 
         let result = client.try_verify_and_issue(&owner, &inputs, &proof);
         assert!(result.is_ok(), "valid issuance must succeed");
-        let cred = result.unwrap();
+        let cred = result.unwrap().unwrap();
         assert_eq!(cred.status, CredentialStatus::Active);
         assert_eq!(cred.owner, owner);
         assert_eq!(cred.verifier_version, 1);
@@ -532,9 +532,8 @@ mod tests {
 
         // Second issuance with same nullifier must fail.
         let result = client.try_verify_and_issue(&owner, &inputs, &proof);
-        assert_eq!(
-            result,
-            Err(Ok(RegistryError::NullifierAlreadyUsed)),
+        assert!(
+            matches!(result, Err(Ok(RegistryError::NullifierAlreadyUsed))),
             "duplicate nullifier must return NullifierAlreadyUsed"
         );
     }
@@ -568,7 +567,7 @@ mod tests {
         };
         let proof = Bytes::from_array(&env, &[0u8; 256]);
         let result = client.try_verify_and_issue(&owner, &inputs, &proof);
-        assert_eq!(result, Err(Ok(RegistryError::ProofWindowNotYetActive)));
+        assert!(matches!(result, Err(Ok(RegistryError::ProofWindowNotYetActive))));
     }
 
     #[test]
@@ -600,7 +599,7 @@ mod tests {
         };
         let proof = Bytes::from_array(&env, &[0u8; 256]);
         let result = client.try_verify_and_issue(&owner, &inputs, &proof);
-        assert_eq!(result, Err(Ok(RegistryError::ProofWindowExpired)));
+        assert!(matches!(result, Err(Ok(RegistryError::ProofWindowExpired))));
     }
 
     // ── require_valid_credential tests ────────────────────────────────────────

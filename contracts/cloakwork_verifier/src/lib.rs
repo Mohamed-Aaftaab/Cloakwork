@@ -189,14 +189,14 @@ mod tests {
     }
 
     /// Deploy the verifier contract and return (contract_id, client).
-    fn deploy(env: &Env) -> (Address, CloakworkVerifierClient) {
+    fn deploy(env: &Env) -> (Address, CloakworkVerifierClient<'_>) {
         let id = env.register(CloakworkVerifier, ());
         let client = CloakworkVerifierClient::new(env, &id);
         (id, client)
     }
 
     /// Deploy and initialize the verifier; return (contract_id, client, admin).
-    fn deploy_and_init(env: &Env) -> (Address, CloakworkVerifierClient, Address) {
+    fn deploy_and_init(env: &Env) -> (Address, CloakworkVerifierClient<'_>, Address) {
         let admin = Address::generate(env);
         let (id, client) = deploy(env);
         client.initialize(&admin);
@@ -337,7 +337,6 @@ mod tests {
         let (_id, client, _admin) = deploy_and_init(&env);
 
         let proof = Bytes::from_array(&env, &[0u8; 256]);
-        let mut inputs_arr = [BytesN::from_array(&env, &[0u8; 32]); 8];
         // all zero inputs
         let inputs: soroban_sdk::Vec<BytesN<32>> = {
             let mut v = soroban_sdk::Vec::new(&env);
@@ -353,7 +352,6 @@ mod tests {
             Err(Ok(VerifierError::VersionNotFound)),
             "unknown version must return VersionNotFound before any EC ops"
         );
-        let _ = inputs_arr;
     }
 
     #[test]
@@ -376,7 +374,7 @@ mod tests {
         let result = client.try_verify_proof(&proof, &inputs, &1u32);
         assert_eq!(
             result,
-            Ok(false),
+            Ok(Ok(false)),
             "stub verify_proof must return Ok(false) for a registered version"
         );
     }

@@ -23,7 +23,7 @@
 //! }
 //! ```
 
-use soroban_sdk::{Address, BytesN, Env, Symbol};
+use soroban_sdk::{Address, BytesN, Env, IntoVal, Symbol};
 
 // Re-export shared types so SDK consumers don't need a direct cloakwork-types dep
 pub use cloakwork_types::{CredentialStatus, DomainCredential};

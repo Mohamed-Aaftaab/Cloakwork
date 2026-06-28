@@ -2,7 +2,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, panic_with_error, symbol_short,
+    contract, contractimpl, contracttype, symbol_short,
     Address, Bytes, BytesN, Env,
 };
 use cloakwork_types::GatedActionError;
@@ -119,7 +119,7 @@ impl GatedActionDemo {
 mod tests {
     use super::*;
     use soroban_sdk::testutils::{Address as _, Events, Ledger, LedgerInfo};
-    use soroban_sdk::{Address, Bytes, BytesN, Env};
+    use soroban_sdk::{panic_with_error, Address, Bytes, BytesN, Env};
     use cloakwork_types::{
         CredentialStatus, DomainCredential, GatedActionError,
     };
@@ -177,7 +177,7 @@ mod tests {
         env
     }
 
-    fn deploy_and_init(env: &Env) -> (Address, GatedActionDemoClient, Address, MockRegistryClient) {
+    fn deploy_and_init(env: &Env) -> (Address, GatedActionDemoClient<'_>, Address, MockRegistryClient<'_>) {
         let registry_id = env.register(MockRegistry, ());
         let registry_client = MockRegistryClient::new(env, &registry_id);
 

@@ -24,7 +24,7 @@ pub enum CredentialStatus {
 /// The `nullifier` is a Poseidon hash of the domain and a private secret,
 /// used to prevent the same domain proof from issuing multiple credentials.
 #[contracttype]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct DomainCredential {
     /// Stellar address of the credential owner.
     pub owner: Address,
