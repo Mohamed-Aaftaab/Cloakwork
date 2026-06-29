@@ -75,15 +75,19 @@ export function useStellarWallet(): StellarWalletState {
   }, []);
 
   const signTransaction = useCallback(
-    async (xdr: string): Promise<string> => {
-      const kit = getKit();
-      const { signedTxXdr } = await kit.signTransaction(xdr, {
-        networkPassphrase:
-          config.network === 'mainnet'
-            ? 'Public Global Stellar Network ; September 2015'
-            : 'Test SDF Network ; September 2015',
-      });
-      return signedTxXdr;
+    async (xdrStr: string): Promise<string> => {
+      const freighter = await import('@stellar/freighter-api');
+      // Ensure Freighter has access before signing
+      const accessResult = await freighter.requestAccess();
+      if (accessResult.error) throw new Error(`Freighter access denied: ${accessResult.error}`);
+
+      const networkPassphrase =
+        config.network === 'mainnet'
+          ? 'Public Global Stellar Network ; September 2015'
+          : 'Test SDF Network ; September 2015';
+      const result = await freighter.signTransaction(xdrStr, { networkPassphrase });
+      if (result.error) throw new Error(result.error);
+      return result.signedTxXdr;
     },
     []
   );

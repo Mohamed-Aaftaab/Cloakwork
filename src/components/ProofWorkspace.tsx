@@ -36,6 +36,7 @@ export function ProofWorkspace() {
       <VerificationPanel
         proof={proof}
         walletAddress={wallet.address ?? ''}
+        signTransaction={wallet.signTransaction}
       />
     </div>
   );

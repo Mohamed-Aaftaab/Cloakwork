@@ -1,11 +1,22 @@
 import React, { useState } from 'react';
+import {
+  Contract,
+  Networks,
+  rpc as StellarRpc,
+  TransactionBuilder,
+  xdr,
+  nativeToScVal,
+  scValToNative,
+} from '@stellar/stellar-sdk';
 import { useCloakworkProof } from '../hooks/useCloakworkProof';
 import { CredentialCard, CredentialData } from './CredentialCard';
 import { config } from '../config';
+import { encodeProofForSoroban, encodePublicInputs } from '../utils/proofFormat';
 
 interface Props {
   proof: ReturnType<typeof useCloakworkProof>;
   walletAddress: string;
+  signTransaction: (xdr: string) => Promise<string>;
   onProofSubmitted?: (txHash: string) => void;
 }
 
@@ -21,18 +32,22 @@ function mapError(raw: string): string {
   for (const [key, msg] of Object.entries(ERROR_MESSAGES)) {
     if (raw.includes(key)) return msg;
   }
-  if (raw.includes('cancel') || raw.includes('reject')) return 'Transaction cancelled.';
+  if (raw.includes('cancel') || raw.includes('reject') || raw.includes('User declined')) {
+    return 'Transaction cancelled by user.';
+  }
   return raw;
 }
 
 const EXPLORER = 'https://stellar.expert/explorer/testnet';
 
 /**
- * Step 4 — Submit proof to Soroban and display the issued credential.
- * Maps Soroban error codes to human-readable messages.
- * Requirements: 16.1–16.8, 22.3–22.6
+ * Step 4 — Submit the ZK proof to the cloakwork_registry Soroban contract
+ * and display the issued DomainCredential.
+ *
+ * Uses @stellar/stellar-sdk to build and submit a real Soroban transaction.
+ * No mocks, no bypasses — private data never leaves the browser.
  */
-export function VerificationPanel({ proof, walletAddress, onProofSubmitted }: Props) {
+export function VerificationPanel({ proof, walletAddress, signTransaction, onProofSubmitted }: Props) {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,27 +58,155 @@ export function VerificationPanel({ proof, walletAddress, onProofSubmitted }: Pr
   }
 
   async function handleSubmit() {
-    if (!proof.proof || !proof.publicSignals) return;
+    if (!proof.proof || !proof.publicSignals || !walletAddress) return;
+
+    const registryId = config.registryContractId;
+    if (!registryId) {
+      setSubmitError('Registry contract ID not configured. Set REACT_APP_CLOAKWORK_REGISTRY_CONTRACT_ID in .env');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
+
     try {
-      // Placeholder — real Soroban tx submission wired in stellar-client/ layer
-      // For demo purposes we simulate a successful submission
-      await new Promise(r => setTimeout(r, 1500));
-      const fakeTx = 'a1b2c3d4e5f6' + Math.random().toString(36).slice(2, 10);
-      setTxHash(fakeTx);
-      setCredential({
-        commitment: proof.ownerCommitment ?? '0x' + '0'.repeat(64),
-        nullifier: proof.publicSignals?.[3] ?? '0x' + '0'.repeat(64),
-        issuedAt: Math.floor(Date.now() / 1000),
-        expiresAt: Math.floor(Date.now() / 1000) + 2_592_000,
+      const server = new StellarRpc.Server(config.rpcUrl);
+      const account = await server.getAccount(walletAddress);
+
+      // Encode the Groth16 proof as 256 bytes
+      const proofBytes = encodeProofForSoroban(proof.proof);
+      const proofScVal = xdr.ScVal.scvBytes(Buffer.from(proofBytes));
+
+      // Encode the 8 public signals as BytesN<32> each, wrapped in a Vec
+      const publicInputArrays = encodePublicInputs(proof.publicSignals);
+      const publicInputsScVal = xdr.ScVal.scvVec(
+        publicInputArrays.map((bytes) => xdr.ScVal.scvBytes(Buffer.from(bytes)))
+      );
+
+      // Build PublicInputs struct matching the Soroban contract type
+      const publicInputsStruct = xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('domain_commitment'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[0])),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('record_commitment'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[1])),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('owner_commitment'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[2])),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('nullifier'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[3])),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('dnskey_root_hash'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[4])),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('not_before'),
+          val: xdr.ScVal.scvU64(xdr.Uint64.fromString(proof.publicSignals[5])),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('not_after'),
+          val: xdr.ScVal.scvU64(xdr.Uint64.fromString(proof.publicSignals[6])),
+        }),
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('verifier_version'),
+          val: xdr.ScVal.scvU32(1),
+        }),
+      ]);
+
+      const contract = new Contract(registryId);
+
+      // Build the transaction calling verify_and_issue(owner, public_inputs, proof)
+      const tx = new TransactionBuilder(account, {
+        fee: '1000000',
+        networkPassphrase: Networks.TESTNET,
+      })
+        .addOperation(
+          contract.call(
+            'verify_and_issue',
+            nativeToScVal(walletAddress, { type: 'address' }),
+            publicInputsStruct,
+            proofScVal
+          )
+        )
+        .setTimeout(60)
+        .build();
+
+      // Simulate to get resource footprint
+      const simResult = await server.simulateTransaction(tx);
+      if (StellarRpc.Api.isSimulationError(simResult)) {
+        throw new Error(`Simulation failed: ${simResult.error}`);
+      }
+
+      // Assemble the transaction with simulation data
+      const preparedTx = StellarRpc.assembleTransaction(tx, simResult).build();
+      const preparedXdr = preparedTx.toXDR();
+
+      // Sign with the wallet from the parent component
+      const signedXdr = await signTransaction(preparedXdr);
+
+      // Submit to the Stellar testnet
+      const submitResult = await server.sendTransaction(
+        TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET)
+      );
+
+      if (submitResult.status === 'ERROR') {
+        throw new Error(`Transaction rejected: ${JSON.stringify(submitResult.errorResult)}`);
+      }
+
+      const hash = submitResult.hash;
+      setTxHash(hash);
+
+      // Poll for confirmation
+      let getResult = await server.getTransaction(hash);
+      let attempts = 0;
+      while (getResult.status === StellarRpc.Api.GetTransactionStatus.NOT_FOUND && attempts < 20) {
+        await new Promise(r => setTimeout(r, 3000));
+        getResult = await server.getTransaction(hash);
+        attempts++;
+      }
+
+      if (getResult.status === StellarRpc.Api.GetTransactionStatus.FAILED) {
+        throw new Error(`Transaction failed on-chain. Check: ${EXPLORER}/tx/${hash}`);
+      }
+
+      // Parse the DomainCredential from the return value
+      const now = Math.floor(Date.now() / 1000);
+      let issuedCredential: CredentialData = {
+        commitment: proof.publicSignals[0] ?? '',
+        nullifier: proof.publicSignals[3] ?? '',
+        issuedAt: now,
+        expiresAt: now + 2_592_000,
         verifierVersion: 1,
         status: 'Active',
         owner: walletAddress,
-        registryContractId: config.registryContractId || '(deploy contract first)',
-        txHash: fakeTx,
-      });
-      onProofSubmitted?.(fakeTx);
+        registryContractId: registryId,
+        txHash: hash,
+      };
+
+      // Try to extract credential fields from the return value if available
+      if (getResult.status === StellarRpc.Api.GetTransactionStatus.SUCCESS && getResult.returnValue) {
+        try {
+          const native = scValToNative(getResult.returnValue);
+          if (native && typeof native === 'object') {
+            issuedCredential = {
+              ...issuedCredential,
+              issuedAt: Number(native.issued_at ?? now),
+              expiresAt: Number(native.expires_at ?? now + 2_592_000),
+            };
+          }
+        } catch {
+          // Use defaults if parsing fails
+        }
+      }
+
+      setCredential(issuedCredential);
+      onProofSubmitted?.(hash);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Submission failed';
       setSubmitError(mapError(msg));
@@ -79,7 +222,10 @@ export function VerificationPanel({ proof, walletAddress, onProofSubmitted }: Pr
       </h3>
 
       {submitError && (
-        <div role="alert" style={{ color: '#fc8181', fontSize: '0.875rem', marginBottom: '0.75rem', padding: '0.75rem', background: '#fc818111', border: '1px solid #fc818133', borderRadius: '6px' }}>
+        <div role="alert" style={{
+          color: '#fc8181', fontSize: '0.875rem', marginBottom: '0.75rem',
+          padding: '0.75rem', background: '#fc818111', border: '1px solid #fc818133', borderRadius: '6px',
+        }}>
           {submitError}
         </div>
       )}
@@ -99,7 +245,12 @@ export function VerificationPanel({ proof, walletAddress, onProofSubmitted }: Pr
       {!credential && !isSubmitting && proof.status === 'proof_ready' && (
         <button
           onClick={handleSubmit}
-          style={{ padding: '10px 22px', fontSize: '0.9rem', border: '1px solid #68d391', borderRadius: '8px', background: '#68d39122', color: '#68d391', cursor: 'pointer', fontWeight: 700 }}
+          style={{
+            padding: '10px 22px', fontSize: '0.9rem',
+            border: '1px solid #68d391', borderRadius: '8px',
+            background: '#68d39122', color: '#68d391',
+            cursor: 'pointer', fontWeight: 700,
+          }}
         >
           Submit to Soroban
         </button>
@@ -116,3 +267,4 @@ export function VerificationPanel({ proof, walletAddress, onProofSubmitted }: Pr
     </div>
   );
 }
+
