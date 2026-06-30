@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust stable
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32v1-none
@@ -38,10 +38,7 @@ jobs:
         run: cargo clippy --workspace -- -D warnings
 
       - name: Build Wasm
-        run: |
-          rustup target add wasm32v1-none
-          cargo build --target wasm32v1-none --release --workspace \
-            --exclude cloakwork-types --exclude cloakwork-sdk
+        run: cargo build --target wasm32v1-none --release --workspace --exclude cloakwork-types --exclude cloakwork-sdk
 
   frontend:
     name: Frontend — TypeScript check
