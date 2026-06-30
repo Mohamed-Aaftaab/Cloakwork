@@ -42,15 +42,11 @@ export function CredentialManager() {
       const server = new StellarRpc.Server(config.rpcUrl);
       const contract = new Contract(config.registryContractId);
 
-      // Build a simulation-only account (no real sequence number needed for reads)
-      const simAccount = await server.getAccount(wallet.address).catch(() => ({
-        accountId: () => wallet.address!,
-        sequenceNumber: () => '0',
-        incrementSequenceNumber: () => {},
-      }));
+      // Build a simulation-only account (real sequence number from RPC)
+      const simAccount = await server.getAccount(wallet.address);
 
       // 1. Fetch the list of nullifiers owned by this wallet
-      const listTx = new TransactionBuilder(simAccount as any, {
+      const listTx = new TransactionBuilder(simAccount, {
         fee: '100',
         networkPassphrase: Networks.TESTNET,
       })
@@ -79,12 +75,8 @@ export function CredentialManager() {
       const loaded: CredentialData[] = [];
       for (const nullifier of nullifiers) {
         try {
-          const simAcc2 = await server.getAccount(wallet.address).catch(() => ({
-            accountId: () => wallet.address!,
-            sequenceNumber: () => '0',
-            incrementSequenceNumber: () => {},
-          }));
-          const credTx = new TransactionBuilder(simAcc2 as any, {
+          const simAcc2 = await server.getAccount(wallet.address);
+          const credTx = new TransactionBuilder(simAcc2, {
             fee: '100',
             networkPassphrase: Networks.TESTNET,
           })

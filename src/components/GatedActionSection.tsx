@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Contract,
+  Networks,
   rpc as StellarRpc,
-  scValToNative,
+  TransactionBuilder,
   xdr,
+  scValToNative,
+  nativeToScVal,
 } from '@stellar/stellar-sdk';
 import { GatedActionDemo } from './GatedActionDemo';
 import { CredentialData } from './CredentialCard';
@@ -19,8 +23,9 @@ export function GatedActionSection() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!wallet.address || !config.registryContractId) return;
-    loadCredentials();
+    if (wallet.address && config.registryContractId) {
+      loadCredentials();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet.address]);
 
@@ -29,48 +34,67 @@ export function GatedActionSection() {
     setLoading(true);
     try {
       const server = new StellarRpc.Server(config.rpcUrl);
+      const contract = new Contract(config.registryContractId);
 
-      // Call get_credentials_by_owner to get nullifiers for this wallet
-      const nullifiersResult = await server.simulateTransaction(
-        buildReadCall(wallet.address, 'get_credentials_by_owner', [
-          addressToScVal(wallet.address),
-        ])
-      );
+      // Fetch real account for sequence number
+      const account = await server.getAccount(wallet.address);
 
-      if (StellarRpc.Api.isSimulationError(nullifiersResult)) return;
+      // 1. Get nullifiers for this wallet
+      const listTx = new TransactionBuilder(account, {
+        fee: '100',
+        networkPassphrase: Networks.TESTNET,
+      })
+        .addOperation(contract.call(
+          'get_credentials_by_owner',
+          nativeToScVal(wallet.address, { type: 'address' })
+        ))
+        .setTimeout(30)
+        .build();
 
-      const nullifiersNative = nullifiersResult.result?.retval
-        ? scValToNative(nullifiersResult.result.retval)
-        : [];
+      const listSim = await server.simulateTransaction(listTx);
+      if (StellarRpc.Api.isSimulationError(listSim)) return;
 
-      const nullifiers: Buffer[] = Array.isArray(nullifiersNative) ? nullifiersNative : [];
+      const retval = listSim.result?.retval;
+      if (!retval) { setCredentials([]); return; }
+      const nullifiersNative = scValToNative(retval);
+      if (!Array.isArray(nullifiersNative) || nullifiersNative.length === 0) {
+        setCredentials([]);
+        return;
+      }
 
-      // Load each credential
+      // 2. Load each credential
       const loaded: CredentialData[] = [];
-      for (const nullifier of nullifiers) {
+      for (const nullifier of nullifiersNative as Uint8Array[]) {
         try {
-          const credResult = await server.simulateTransaction(
-            buildReadCall(wallet.address, 'get_credential', [
-              xdr.ScVal.scvBytes(nullifier),
-            ])
-          );
-          if (StellarRpc.Api.isSimulationError(credResult)) continue;
-          const retval = credResult.result?.retval;
-          if (!retval) continue;
-          const native = scValToNative(retval);
-          if (!native) continue;
+          const account2 = await server.getAccount(wallet.address);
+          const credTx = new TransactionBuilder(account2, {
+            fee: '100',
+            networkPassphrase: Networks.TESTNET,
+          })
+            .addOperation(contract.call(
+              'get_credential',
+              xdr.ScVal.scvBytes(Buffer.from(nullifier))
+            ))
+            .setTimeout(30)
+            .build();
 
-          // Map on-chain DomainCredential to CredentialData
+          const credSim = await server.simulateTransaction(credTx);
+          if (StellarRpc.Api.isSimulationError(credSim)) continue;
+          const credRetval = credSim.result?.retval;
+          if (!credRetval) continue;
+          const native = scValToNative(credRetval);
+          if (!native || typeof native !== 'object') continue;
+
           const nullifierHex = Buffer.from(nullifier).toString('hex');
           const commitmentHex = native.commitment
-            ? Buffer.from(native.commitment).toString('hex')
+            ? Buffer.from(native.commitment as Uint8Array).toString('hex')
             : '';
 
-          let status: 'Active' | 'Revoked' | 'Expired' = 'Active';
           const now = Math.floor(Date.now() / 1000);
+          let status: 'Active' | 'Revoked' | 'Expired' = 'Active';
           if (native.status && typeof native.status === 'object' && 'Revoked' in native.status) {
             status = 'Revoked';
-          } else if (Number(native.expires_at) < now) {
+          } else if (Number(native.expires_at ?? 0) < now) {
             status = 'Expired';
           }
 
@@ -95,29 +119,6 @@ export function GatedActionSection() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function buildReadCall(caller: string, method: string, args: xdr.ScVal[]) {
-    const { Contract, TransactionBuilder, Networks } = require('@stellar/stellar-sdk');
-    const contract = new Contract(config.registryContractId);
-    // Use a dummy account for simulation read calls (no signing needed)
-    const dummyAccount = {
-      accountId: () => caller,
-      sequenceNumber: () => '0',
-      incrementSequenceNumber: () => {},
-    };
-    return new TransactionBuilder(dummyAccount as any, {
-      fee: '100',
-      networkPassphrase: Networks.TESTNET,
-    })
-      .addOperation(contract.call(method, ...args))
-      .setTimeout(30)
-      .build();
-  }
-
-  function addressToScVal(address: string): xdr.ScVal {
-    const { nativeToScVal } = require('@stellar/stellar-sdk');
-    return nativeToScVal(address, { type: 'address' });
   }
 
   const activeCount = credentials.filter(c => c.status === 'Active').length;

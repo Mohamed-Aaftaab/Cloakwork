@@ -84,11 +84,8 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       const proofBytes = encodeProofForSoroban(proof.proof);
       const proofScVal = xdr.ScVal.scvBytes(Buffer.from(proofBytes));
 
-      // Encode the 8 public signals as BytesN<32> each, wrapped in a Vec
+      // Encode the 8 public signals as BytesN<32> each — used in the PublicInputs struct below
       const publicInputArrays = encodePublicInputs(proof.publicSignals);
-      const publicInputsScVal = xdr.ScVal.scvVec(
-        publicInputArrays.map((bytes) => xdr.ScVal.scvBytes(Buffer.from(bytes)))
-      );
 
       // Build PublicInputs struct — keys MUST be alphabetically sorted for Soroban
       const publicInputsStruct = xdr.ScVal.scvMap([
