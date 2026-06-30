@@ -2,11 +2,29 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short,
+    contract, contractevent, contractimpl, contracttype,
     Address, Bytes, BytesN, Env,
 };
 use cloakwork_types::GatedActionError;
 use cloakwork_sdk::CloakworkClient;
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+/// Emitted when a credential-gated action is successfully executed.
+/// The `domain_commitment` is a Poseidon hash — the domain is never revealed.
+/// `action_payload` is in the data section.
+#[contractevent]
+#[derive(Clone, Debug)]
+pub struct ActionExecuted {
+    /// Stellar address of the credential owner (topic, indexed).
+    #[topic]
+    pub owner: Address,
+    /// Poseidon hash of the domain — no raw domain ever on-chain (topic).
+    #[topic]
+    pub domain_commitment: BytesN<32>,
+    /// Arbitrary action payload bytes (data).
+    pub action_payload: Bytes,
+}
 
 // ─── Storage Keys ─────────────────────────────────────────────────────────────
 
@@ -103,11 +121,14 @@ impl GatedActionDemo {
         let cred = CloakworkClient::get_credential(&env, registry, nullifier)
             .ok_or(GatedActionError::CredentialNotFound)?;
 
-        // Emit: (topic: "action_executed", owner, domain_commitment) + payload data
-        env.events().publish(
-            (symbol_short!("action_ex"), owner, cred.commitment),
+        // Emit: ActionExecuted event with owner + domain_commitment + payload data
+        // The domain name itself never appears here or on-chain.
+        ActionExecuted {
+            owner: owner.clone(),
+            domain_commitment: cred.commitment,
             action_payload,
-        );
+        }
+        .publish(&env);
 
         Ok(())
     }
@@ -166,7 +187,7 @@ mod tests {
         env.mock_all_auths();
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,
@@ -226,7 +247,8 @@ mod tests {
         assert!(result.is_ok(), "active credential must succeed: {:?}", result);
 
         let events = env.events().all();
-        assert!(!events.is_empty(), "at least one event must be emitted");
+        // ContractEvents.events() returns &[xdr::ContractEvent]
+        assert!(!events.events().is_empty(), "at least one event must be emitted");
     }
 
     #[test]

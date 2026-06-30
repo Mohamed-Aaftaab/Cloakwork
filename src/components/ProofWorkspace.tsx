@@ -1,22 +1,18 @@
 import React from 'react';
 import { useCloakworkProof } from '../hooks/useCloakworkProof';
-import { useStellarWallet } from '../hooks/useStellarWallet';
+import { StellarWalletState } from '../hooks/useStellarWallet';
 import { DNSChallengeGuide } from './DNSChallengeGuide';
 import { DNSSECCheck } from './DNSSECCheck';
 import { ProofGenerator } from './ProofGenerator';
 import { VerificationPanel } from './VerificationPanel';
 import { PrivacyPanel } from './PrivacyPanel';
 
-/**
- * Main proof generation workspace — full 4-step flow:
- * 1. Generate DNS challenge
- * 2. Verify DNSSEC record
- * 3. Generate ZK proof (Web Worker)
- * 4. Submit to Soroban and receive credential
- */
-export function ProofWorkspace() {
+interface Props {
+  wallet: StellarWalletState;
+}
+
+export function ProofWorkspace({ wallet }: Props) {
   const proof = useCloakworkProof();
-  const wallet = useStellarWallet();
 
   return (
     <div style={{ padding: '1.5rem 0', maxWidth: '680px' }}>

@@ -7,11 +7,11 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-soroban-sdk = { version = "22.0.0" }
+soroban-sdk = { version = "26.1.0" }
 cloakwork-types = { path = "../../contracts/cloakwork-types" }
 
 [dev-dependencies]
-soroban-sdk = { version = "22.0.0", features = ["testutils"] }
+soroban-sdk = { version = "26.1.0", features = ["testutils"] }
 
 [profile.release]
 opt-level = "z"

@@ -58,7 +58,14 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
   }
 
   async function handleSubmit() {
-    if (!proof.proof || !proof.publicSignals || !walletAddress) return;
+    if (!proof.proof || !proof.publicSignals) {
+      setSubmitError('Proof not ready. Please generate the ZK proof first.');
+      return;
+    }
+    if (!walletAddress || walletAddress.length < 10) {
+      setSubmitError('Wallet not connected. Please connect your Stellar wallet first.');
+      return;
+    }
 
     const registryId = config.registryContractId;
     if (!registryId) {
@@ -83,35 +90,35 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
         publicInputArrays.map((bytes) => xdr.ScVal.scvBytes(Buffer.from(bytes)))
       );
 
-      // Build PublicInputs struct matching the Soroban contract type
+      // Build PublicInputs struct — keys MUST be alphabetically sorted for Soroban
       const publicInputsStruct = xdr.ScVal.scvMap([
+        new xdr.ScMapEntry({
+          key: xdr.ScVal.scvSymbol('dnskey_root_hash'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[6])),
+        }),
         new xdr.ScMapEntry({
           key: xdr.ScVal.scvSymbol('domain_commitment'),
           val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[0])),
         }),
         new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol('record_commitment'),
-          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[1])),
+          key: xdr.ScVal.scvSymbol('not_after'),
+          val: xdr.ScVal.scvU64(xdr.Uint64.fromString(proof.publicSignals[5])),
         }),
         new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol('owner_commitment'),
-          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[2])),
+          key: xdr.ScVal.scvSymbol('not_before'),
+          val: xdr.ScVal.scvU64(xdr.Uint64.fromString(proof.publicSignals[4])),
         }),
         new xdr.ScMapEntry({
           key: xdr.ScVal.scvSymbol('nullifier'),
           val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[3])),
         }),
         new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol('dnskey_root_hash'),
-          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[4])),
+          key: xdr.ScVal.scvSymbol('owner_commitment'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[2])),
         }),
         new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol('not_before'),
-          val: xdr.ScVal.scvU64(xdr.Uint64.fromString(proof.publicSignals[5])),
-        }),
-        new xdr.ScMapEntry({
-          key: xdr.ScVal.scvSymbol('not_after'),
-          val: xdr.ScVal.scvU64(xdr.Uint64.fromString(proof.publicSignals[6])),
+          key: xdr.ScVal.scvSymbol('record_commitment'),
+          val: xdr.ScVal.scvBytes(Buffer.from(publicInputArrays[1])),
         }),
         new xdr.ScMapEntry({
           key: xdr.ScVal.scvSymbol('verifier_version'),

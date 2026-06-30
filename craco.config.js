@@ -1,28 +1,43 @@
 const webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
   webpack: {
     configure: (webpackConfig) => {
-      // Polyfills for Node.js built-ins used by circomlibjs and snarkjs
+      // Polyfills for Node.js built-ins used by circomlibjs, snarkjs, and stellar-sdk
       webpackConfig.resolve.fallback = {
         ...webpackConfig.resolve.fallback,
         assert: require.resolve('assert/'),
         buffer: require.resolve('buffer/'),
         crypto: require.resolve('crypto-browserify'),
         stream: require.resolve('stream-browserify'),
-        process: require.resolve('process/browser'),
         path: false,
         fs: false,
         os: false,
+      };
+
+      // Alias 'process/browser' to the .js variant — needed for @stellar/stellar-sdk v14+
+      // which uses strict ESM and requires fully-specified extensions in imports.
+      webpackConfig.resolve.alias = {
+        ...webpackConfig.resolve.alias,
+        'process/browser': require.resolve('process/browser.js'),
       };
 
       webpackConfig.plugins = [
         ...webpackConfig.plugins,
         new webpack.ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],
-          process: 'process/browser',
+          process: ['process/browser.js'],
         }),
       ];
+
+      // Allow webpack to resolve .mjs files from node_modules (stellar-sdk v14+ uses ESM)
+      webpackConfig.module.rules.push({
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false,
+        },
+      });
 
       return webpackConfig;
     },

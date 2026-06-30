@@ -489,7 +489,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,
@@ -515,7 +515,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,
@@ -544,7 +544,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 1,
             network_id: Default::default(),
             base_reserve: 10,
@@ -576,7 +576,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 100_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 1,
             network_id: Default::default(),
             base_reserve: 10,
@@ -611,7 +611,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 1,
             network_id: Default::default(),
             base_reserve: 10,
@@ -633,7 +633,7 @@ mod tests {
         let (_id, client, admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,
@@ -673,7 +673,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,
@@ -705,7 +705,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,
@@ -736,7 +736,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,
@@ -768,7 +768,7 @@ mod tests {
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
         env.ledger().set(LedgerInfo {
             timestamp: 1_000_000,
-            protocol_version: 22,
+            protocol_version: 26,
             sequence_number: 100,
             network_id: Default::default(),
             base_reserve: 10,

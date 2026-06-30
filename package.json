@@ -5,7 +5,7 @@
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^1.6.1",
     "@stellar/freighter-api": "^3.0.1",
-    "@stellar/stellar-sdk": "^13.1.0",
+    "@stellar/stellar-sdk": "^16.0.1",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
