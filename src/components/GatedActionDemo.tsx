@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
+import {
+  Contract,
+  Networks,
+  rpc as StellarRpc,
+  TransactionBuilder,
+  nativeToScVal,
+} from '@stellar/stellar-sdk';
 import { CredentialData } from './CredentialCard';
 import { config } from '../config';
 
 interface Props {
   credentials: CredentialData[];
   walletAddress: string;
+  signTransaction: (xdr: string) => Promise<string>;
 }
 
 const EXPLORER = 'https://stellar.expert/explorer/testnet';
@@ -12,12 +20,13 @@ const EXPLORER = 'https://stellar.expert/explorer/testnet';
 /**
  * Gated action demo — "Verified Merchant Payment Intent".
  *
- * Demonstrates that an unrelated contract can verify a Cloakwork credential
- * without ever knowing the underlying domain. Uses cloakwork-sdk on-chain.
+ * Calls execute_with_credential on the gated_action_demo Soroban contract.
+ * Uses the cloakwork-sdk on-chain: one line of Rust gates the action behind
+ * a valid DomainCredential without revealing the domain.
  *
- * Requirements: 18.1–18.7
+ * No mocks, no bypasses — real Soroban transaction submitted.
  */
-export function GatedActionDemo({ credentials, walletAddress }: Props) {
+export function GatedActionDemo({ credentials, walletAddress, signTransaction }: Props) {
   const activeCredentials = credentials.filter(c => c.status === 'Active');
   const [selected, setSelected] = useState<CredentialData | null>(activeCredentials[0] ?? null);
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -27,21 +36,88 @@ export function GatedActionDemo({ credentials, walletAddress }: Props) {
   if (activeCredentials.length === 0) return null;
 
   async function handleExecute() {
-    if (!selected) return;
+    if (!selected || !walletAddress) return;
+
+    const gatedContractId = config.gatedActionContractId;
+    if (!gatedContractId) {
+      setError('Gated action contract ID not configured.');
+      return;
+    }
+
     setIsRunning(true);
     setError(null);
     setTxHash(null);
+
     try {
-      // Placeholder — real Soroban tx submission wired in stellar-client/ layer
-      await new Promise(r => setTimeout(r, 1200));
-      const fakeTx = 'gated' + Math.random().toString(36).slice(2, 14);
-      setTxHash(fakeTx);
+      const server = new StellarRpc.Server(config.rpcUrl);
+      const account = await server.getAccount(walletAddress);
+
+      // Encode nullifier as BytesN<32>
+      const nullifierHex = selected.nullifier.replace(/^0x/, '').padStart(64, '0');
+      const nullifierBytes = new Uint8Array(32);
+      for (let i = 0; i < 32; i++) {
+        nullifierBytes[i] = parseInt(nullifierHex.slice(i * 2, i * 2 + 2), 16);
+      }
+
+      // Action payload — "payment:demo" as bytes
+      const payloadBytes = new TextEncoder().encode('payment:demo');
+
+      const contract = new Contract(gatedContractId);
+      const tx = new TransactionBuilder(account, {
+        fee: '1000000',
+        networkPassphrase: Networks.TESTNET,
+      })
+        .addOperation(
+          contract.call(
+            'execute_with_credential',
+            nativeToScVal(walletAddress, { type: 'address' }),
+            nativeToScVal(nullifierBytes, { type: 'bytes' }),
+            nativeToScVal(payloadBytes, { type: 'bytes' }),
+          )
+        )
+        .setTimeout(60)
+        .build();
+
+      // Simulate
+      const simResult = await server.simulateTransaction(tx);
+      if (StellarRpc.Api.isSimulationError(simResult)) {
+        throw new Error(`Simulation failed: ${simResult.error}`);
+      }
+
+      // Assemble, sign, submit
+      const preparedTx = StellarRpc.assembleTransaction(tx, simResult).build();
+      const signedXdr = await signTransaction(preparedTx.toXDR());
+
+      const submitResult = await server.sendTransaction(
+        TransactionBuilder.fromXDR(signedXdr, Networks.TESTNET)
+      );
+      if (submitResult.status === 'ERROR') {
+        throw new Error(`Transaction rejected: ${JSON.stringify(submitResult.errorResult)}`);
+      }
+
+      const hash = submitResult.hash;
+      setTxHash(hash);
+
+      // Poll for confirmation
+      let getResult = await server.getTransaction(hash);
+      let attempts = 0;
+      while (getResult.status === StellarRpc.Api.GetTransactionStatus.NOT_FOUND && attempts < 20) {
+        await new Promise(r => setTimeout(r, 3000));
+        getResult = await server.getTransaction(hash);
+        attempts++;
+      }
+
+      if (getResult.status === StellarRpc.Api.GetTransactionStatus.FAILED) {
+        throw new Error(`Transaction failed on-chain. Check: ${EXPLORER}/tx/${hash}`);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Gated action failed';
-      if (msg.includes('Revoked')) {
+      if (msg.includes('Revoked') || msg.includes('CredentialRevoked')) {
         setError('Credential revoked — this action requires an active credential.');
-      } else if (msg.includes('Expired')) {
-        setError('Credential expired — please renew your credential to perform this action.');
+      } else if (msg.includes('Expired') || msg.includes('CredentialExpired')) {
+        setError('Credential expired — please renew your credential.');
+      } else if (msg.includes('cancel') || msg.includes('User declined')) {
+        setError('Transaction cancelled by user.');
       } else {
         setError(msg);
       }
@@ -64,7 +140,7 @@ export function GatedActionDemo({ credentials, walletAddress }: Props) {
       <div style={{ background: '#1a202c', border: '1px solid #2d3748', borderRadius: '10px', padding: '1rem', marginBottom: '1rem' }}>
         <div style={{ color: '#718096', fontSize: '0.75rem', marginBottom: '0.5rem' }}>How it works on-chain</div>
         <code style={{ color: '#90cdf4', fontSize: '0.78rem', lineHeight: 1.6, display: 'block' }}>
-          {`CloakworkClient::require_valid_credential(\n  &env, registry_addr, owner, nullifier\n);\n// → emits action_executed event`}
+          {`CloakworkClient::require_valid_credential(\n  &env, registry_addr, owner, nullifier\n);\n// → emits ActionExecuted event`}
         </code>
       </div>
 
@@ -96,10 +172,10 @@ export function GatedActionDemo({ credentials, walletAddress }: Props) {
       {txHash && (
         <div style={{ marginBottom: '1rem', padding: '0.75rem', background: '#68d39111', border: '1px solid #68d39133', borderRadius: '6px' }}>
           <div style={{ color: '#68d391', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-            ✓ Verified Merchant Payment Intent created
+            ✓ Verified Merchant Payment Intent created on Stellar testnet
           </div>
           <div style={{ color: '#718096', fontSize: '0.78rem', marginBottom: '0.25rem' }}>
-            Event emitted: <code style={{ color: '#90cdf4' }}>action_executed</code>
+            Event emitted: <code style={{ color: '#90cdf4' }}>ActionExecuted</code>
           </div>
           <div style={{ color: '#718096', fontSize: '0.78rem', marginBottom: '0.25rem' }}>
             Owner: <code style={{ color: '#a0aec0' }}>{walletAddress.slice(0, 12)}…</code>
