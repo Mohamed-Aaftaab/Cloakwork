@@ -14,7 +14,7 @@
  * Requires contracts to be deployed and initialized (see DEPLOYMENT.md).
  */
 
-import { Contract, Keypair, Networks, SorobanRpc, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
+import { Contract, Keypair, Networks, rpc as StellarRpc, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
 
 const RPC_URL = process.env.STELLAR_RPC_URL ?? 'https://soroban-testnet.stellar.org';
 const VERIFIER_ID = process.env.CLOAKWORK_VERIFIER_ID ?? '';
@@ -35,12 +35,12 @@ async function main() {
     process.exit(1);
   }
 
-  const server = new SorobanRpc.Server(RPC_URL);
+  const server = new StellarRpc.Server(RPC_URL);
 
   // Test 1: Contracts are accessible
   console.log('Test 1: Contracts are accessible on testnet...');
   try {
-    await server.getContractData(REGISTRY_ID, xdr.ScVal.scvLedgerKeyContractInstance(), SorobanRpc.Durability.Persistent);
+    await server.getContractData(REGISTRY_ID, xdr.ScVal.scvLedgerKeyContractInstance(), StellarRpc.Durability.Persistent);
     console.log('  ✓ Registry contract found on testnet');
   } catch {
     console.log('  ✓ Registry contract accessible (instance storage)');

@@ -22,19 +22,19 @@ ADMIN_ADDRESS=$(stellar keys address deployer --network "$NETWORK" 2>/dev/null |
 echo "Building contracts..."
 stellar contract build
 
-WASM_DIR="target/wasm32-unknown-unknown/release"
+WASM_DIR="target/wasm32v1-none/release"
 
 echo ""
 echo "Deploying cloakwork_verifier..."
 VERIFIER_ID=$(stellar contract deploy \
   --wasm "$WASM_DIR/cloakwork_verifier.wasm" \
-  --source-account "$STELLAR_SECRET_KEY" \
+  --source deployer \
   --network "$NETWORK")
 echo "  Verifier: $VERIFIER_ID"
 
 stellar contract invoke \
   --id "$VERIFIER_ID" \
-  --source-account "$STELLAR_SECRET_KEY" \
+  --source deployer \
   --network "$NETWORK" \
   -- initialize \
   --admin "$ADMIN_ADDRESS"
@@ -44,13 +44,13 @@ echo ""
 echo "Deploying cloakwork_registry..."
 REGISTRY_ID=$(stellar contract deploy \
   --wasm "$WASM_DIR/cloakwork_registry.wasm" \
-  --source-account "$STELLAR_SECRET_KEY" \
+  --source deployer \
   --network "$NETWORK")
 echo "  Registry: $REGISTRY_ID"
 
 stellar contract invoke \
   --id "$REGISTRY_ID" \
-  --source-account "$STELLAR_SECRET_KEY" \
+  --source deployer \
   --network "$NETWORK" \
   -- initialize \
   --admin "$ADMIN_ADDRESS" \
@@ -61,13 +61,13 @@ echo ""
 echo "Deploying gated_action_demo..."
 GATED_ID=$(stellar contract deploy \
   --wasm "$WASM_DIR/gated_action_demo.wasm" \
-  --source-account "$STELLAR_SECRET_KEY" \
+  --source deployer \
   --network "$NETWORK")
 echo "  GatedAction: $GATED_ID"
 
 stellar contract invoke \
   --id "$GATED_ID" \
-  --source-account "$STELLAR_SECRET_KEY" \
+  --source deployer \
   --network "$NETWORK" \
   -- initialize \
   --registry "$REGISTRY_ID"

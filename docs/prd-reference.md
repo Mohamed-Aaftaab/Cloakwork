@@ -1,4 +1,10 @@
-# zkDNS Stellar — Product Requirements & Build PRD
+# Cloakwork — Original PRD Reference
+
+> **Historical reference only.** This is the original PRD used to plan and build Cloakwork (formerly called "zkDNS Stellar"). The final implementation is described in README.md and DEPLOYMENT.md. Some names and details in this document were superseded during development.
+
+---
+
+# zkDNS Stellar — Product Requirements & Build PRD (Original)
 
 > **Read me first for the implementing agent.** Build **zkDNS Stellar** as a native Stellar/Soroban privacy product: a zero-knowledge DNSSEC identity primitive that lets users prove domain-backed authorization while keeping the domain and DNS record private. The final product must be a focused identity, credential, and gated-action application for Stellar.
 >
