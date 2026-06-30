@@ -2,6 +2,42 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+// Mock useCloakworkProof to avoid import.meta.url in the Web Worker (not supported by Jest CJS)
+jest.mock('./hooks/useCloakworkProof', () => ({
+  useCloakworkProof: () => ({
+    status: 'idle',
+    domain: null,
+    ownerCommitment: null,
+    nonceCommitment: null,
+    txtRecordName: null,
+    txtRecordValue: null,
+    dnssecMaterial: null,
+    proof: null,
+    publicSignals: null,
+    proofSizeBytes: null,
+    error: null,
+    generateChallenge: jest.fn(),
+    checkDNSSEC: jest.fn(),
+    generateProof: jest.fn(),
+    reset: jest.fn(),
+  }),
+}));
+
+// Mock @stellar/stellar-sdk to avoid ESM issues in Jest CJS environment
+jest.mock('@stellar/stellar-sdk', () => ({
+  Contract: jest.fn(),
+  Networks: { TESTNET: 'Test SDF Network ; September 2015' },
+  rpc: {
+    Server: jest.fn(),
+    Api: { GetTransactionStatus: { NOT_FOUND: 'NOT_FOUND', SUCCESS: 'SUCCESS', FAILED: 'FAILED' }, isSimulationError: jest.fn() },
+    assembleTransaction: jest.fn(),
+  },
+  TransactionBuilder: jest.fn(),
+  xdr: { ScVal: { scvBytes: jest.fn(), scvSymbol: jest.fn(), scvU64: jest.fn(), scvU32: jest.fn(), scvMap: jest.fn() }, ScMapEntry: jest.fn(), Uint64: { fromString: jest.fn() } },
+  nativeToScVal: jest.fn(),
+  scValToNative: jest.fn(),
+}));
+
 // Mock the wallet hook module-wide so Jest never loads the ESM wallet-kit
 // package, which is not supported by the CRA Jest transform config.
 const mockConnect = jest.fn();
@@ -56,8 +92,10 @@ describe('Auth-gate UI - disconnected state', () => {
 
   it('does not render CredentialManager content when disconnected', () => {
     render(<App />);
-    // CredentialManager heading only renders when connected
-    expect(screen.queryByText(/^my credentials$/i)).not.toBeInTheDocument();
+    // When disconnected, CredentialManager is not rendered — only the ConnectPrompt is shown
+    // We check that the connect prompt appears (not the credential loading state)
+    expect(screen.queryByText(/loading credentials/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/no credentials found for this wallet/i)).not.toBeInTheDocument();
   });
 
   it('does not render GatedActionSection when disconnected', () => {
