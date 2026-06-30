@@ -26,7 +26,7 @@ export function ProofWorkspace({ wallet }: Props) {
       </div>
 
       <PrivacyPanel />
-      <DNSChallengeGuide proof={proof} />
+      <DNSChallengeGuide proof={proof} walletAddress={wallet.address ?? ''} />
       <DNSSECCheck proof={proof} />
       <ProofGenerator proof={proof} onSubmitClick={proof.generateProof} />
       <VerificationPanel

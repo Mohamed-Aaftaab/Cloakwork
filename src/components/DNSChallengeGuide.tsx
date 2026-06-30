@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useCloakworkProof } from '../hooks/useCloakworkProof';
-import { useStellarWallet } from '../hooks/useStellarWallet';
 
 interface Props {
   proof: ReturnType<typeof useCloakworkProof>;
+  walletAddress: string;
 }
 
 /**
@@ -12,8 +12,7 @@ interface Props {
  * derives Poseidon commitments, and displays the TXT record to publish.
  * The domain name and nonce/secret never leave the browser.
  */
-export function DNSChallengeGuide({ proof }: Props) {
-  const wallet = useStellarWallet();
+export function DNSChallengeGuide({ proof, walletAddress }: Props) {
   const [domain, setDomain] = useState('');
   const [domainError, setDomainError] = useState<string | null>(null);
 
@@ -29,7 +28,7 @@ export function DNSChallengeGuide({ proof }: Props) {
       return;
     }
     setDomainError(null);
-    await proof.generateChallenge(domain, wallet.address ?? '');
+    await proof.generateChallenge(domain, walletAddress);
   }
 
   function copyToClipboard(text: string) {
