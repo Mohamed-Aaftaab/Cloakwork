@@ -5,3 +5,6 @@ node_modules/
 *.zkey
 build/
 dist/
+
+# Soroban test snapshots — auto-generated per platform, do not commit
+**/test_snapshots/
