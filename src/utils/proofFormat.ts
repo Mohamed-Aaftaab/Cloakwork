@@ -32,16 +32,17 @@ export function encodeProofForSoroban(proof: {
     buf.set(y, offset + 32);
   }
 
-  // Encode G2 point (128 bytes): x0 (32) + x1 (32) + y0 (32) + y1 (32)
+  // Encode G2 point (128 bytes): Soroban format is c1||c0 for each Fp2 coordinate
+  // snarkjs stores [[c0,c1],[c0,c1]] (real,imaginary), Soroban needs c1||c0 (imaginary first)
   function encodeG2(point: string[][], offset: number): void {
-    const x0 = hexTo32Bytes(point[0][0]);
-    const x1 = hexTo32Bytes(point[0][1]);
-    const y0 = hexTo32Bytes(point[1][0]);
-    const y1 = hexTo32Bytes(point[1][1]);
-    buf.set(x0, offset);
-    buf.set(x1, offset + 32);
-    buf.set(y0, offset + 64);
-    buf.set(y1, offset + 96);
+    const x_c1 = hexTo32Bytes(point[0][1]); // imaginary part of X
+    const x_c0 = hexTo32Bytes(point[0][0]); // real part of X
+    const y_c1 = hexTo32Bytes(point[1][1]); // imaginary part of Y
+    const y_c0 = hexTo32Bytes(point[1][0]); // real part of Y
+    buf.set(x_c1, offset);
+    buf.set(x_c0, offset + 32);
+    buf.set(y_c1, offset + 64);
+    buf.set(y_c0, offset + 96);
   }
 
   encodeG1(proof.pi_a, 0);   // bytes 0..64

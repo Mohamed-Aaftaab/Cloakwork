@@ -42,12 +42,16 @@ function g1ToBytes(point) {
 }
 
 // G2 point: [[x0, x1], [y0, y1], ["1","0"]] -> 128 bytes
+// Soroban G2 Fp2 encoding: be_bytes(c1) || be_bytes(c0)  (imaginary first, then real)
+// snarkjs stores [c0, c1] (real, imaginary), so we swap: use [1] first, then [0]
 function g2ToBytes(point) {
-  const x0 = fieldToBytes32(point[0][0]);
-  const x1 = fieldToBytes32(point[0][1]);
-  const y0 = fieldToBytes32(point[1][0]);
-  const y1 = fieldToBytes32(point[1][1]);
-  return Buffer.concat([x0, x1, y0, y1]); // 128 bytes
+  // X coordinate: c1 (imaginary) first, then c0 (real)
+  const x_c1 = fieldToBytes32(point[0][1]); // imaginary part of X
+  const x_c0 = fieldToBytes32(point[0][0]); // real part of X
+  // Y coordinate: c1 (imaginary) first, then c0 (real)
+  const y_c1 = fieldToBytes32(point[1][1]); // imaginary part of Y
+  const y_c0 = fieldToBytes32(point[1][0]); // real part of Y
+  return Buffer.concat([x_c1, x_c0, y_c1, y_c0]); // 128 bytes: X_Fp2 || Y_Fp2
 }
 
 async function main() {
