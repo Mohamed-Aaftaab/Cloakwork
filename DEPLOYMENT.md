@@ -2,26 +2,27 @@
 
 All three Soroban contracts must be deployed and initialized in order.
 No contract IDs, RPC URLs, or secret keys are hardcoded — everything is
-read from environment variables.
+read from environment variables or the Stellar CLI keystore.
 
 ---
 
 ## Prerequisites
 
-- Rust + `wasm32-unknown-unknown` target
-- Stellar CLI ≥ 22.0.0 (`stellar --version`)
-- A funded Stellar testnet account (`stellar keys generate --network testnet deployer`)
+- Rust stable ≥ 1.91 + `wasm32v1-none` target (`rustup target add wasm32v1-none`)
+- Stellar CLI ≥ 27.0.0 (`stellar --version`)
+- A funded Stellar testnet account (`stellar keys generate deployer --network testnet`)
+- Fund it: `stellar keys fund deployer --network testnet`
 
 ---
 
-## Step 0 — Set environment variables
+## Step 0 — Set up Stellar CLI
 
 ```bash
-export STELLAR_SECRET_KEY="S..."              # Deployer secret key
-export STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
-export STELLAR_RPC_URL="https://soroban-testnet.stellar.org"
-export STELLAR_HORIZON_URL="https://horizon-testnet.stellar.org"
-export STELLAR_NETWORK="testnet"
+# Verify CLI version
+stellar --version
+
+# Confirm deployer key exists
+stellar keys address deployer
 ```
 
 ---
@@ -31,9 +32,9 @@ export STELLAR_NETWORK="testnet"
 ```bash
 stellar contract build
 # Optimised Wasm files appear in:
-#   target/wasm32-unknown-unknown/release/cloakwork_verifier.wasm
-#   target/wasm32-unknown-unknown/release/cloakwork_registry.wasm
-#   target/wasm32-unknown-unknown/release/gated_action_demo.wasm
+#   target/wasm32v1-none/release/cloakwork_verifier.wasm
+#   target/wasm32v1-none/release/cloakwork_registry.wasm
+#   target/wasm32v1-none/release/gated_action_demo.wasm
 ```
 
 ---
@@ -42,30 +43,26 @@ stellar contract build
 
 ```bash
 VERIFIER_ID=$(stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/cloakwork_verifier.wasm \
-  --source-account $STELLAR_SECRET_KEY \
+  --wasm target/wasm32v1-none/release/cloakwork_verifier.wasm \
+  --source deployer \
   --network testnet)
 echo "Verifier: $VERIFIER_ID"
 
 stellar contract invoke \
   --id $VERIFIER_ID \
-  --source-account $STELLAR_SECRET_KEY \
+  --source deployer \
   --network testnet \
   -- initialize \
-  --admin $(stellar keys address deployer --network testnet)
+  --admin $(stellar keys address deployer)
 ```
 
-### Register the Groth16 verifying key (after running trusted setup)
+### Register the Groth16 verifying key
 
 ```bash
-# After running scripts/setup.sh, register version 1
-stellar contract invoke \
-  --id $VERIFIER_ID \
-  --source-account $STELLAR_SECRET_KEY \
-  --network testnet \
-  -- register_key \
-  --version 1 \
-  --vk "$(cat proofs/circom/build/vk_soroban.json)"
+# Uses scripts/register_key.js with the correct G2 Fp2 encoding (c1||c0)
+STELLAR_SECRET_KEY=$(stellar keys show deployer) \
+  CLOAKWORK_VERIFIER_ID=$VERIFIER_ID \
+  node scripts/register_key.js
 ```
 
 ---
@@ -74,17 +71,17 @@ stellar contract invoke \
 
 ```bash
 REGISTRY_ID=$(stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/cloakwork_registry.wasm \
-  --source-account $STELLAR_SECRET_KEY \
+  --wasm target/wasm32v1-none/release/cloakwork_registry.wasm \
+  --source deployer \
   --network testnet)
 echo "Registry: $REGISTRY_ID"
 
 stellar contract invoke \
   --id $REGISTRY_ID \
-  --source-account $STELLAR_SECRET_KEY \
+  --source deployer \
   --network testnet \
   -- initialize \
-  --admin $(stellar keys address deployer --network testnet) \
+  --admin $(stellar keys address deployer) \
   --verifier_contract $VERIFIER_ID
 ```
 
@@ -94,14 +91,14 @@ stellar contract invoke \
 
 ```bash
 GATED_ID=$(stellar contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/gated_action_demo.wasm \
-  --source-account $STELLAR_SECRET_KEY \
+  --wasm target/wasm32v1-none/release/gated_action_demo.wasm \
+  --source deployer \
   --network testnet)
 echo "GatedAction: $GATED_ID"
 
 stellar contract invoke \
   --id $GATED_ID \
-  --source-account $STELLAR_SECRET_KEY \
+  --source deployer \
   --network testnet \
   -- initialize \
   --registry $REGISTRY_ID
@@ -112,7 +109,10 @@ stellar contract invoke \
 ## Step 5 — Write contract IDs to `.env`
 
 ```bash
-cat >> .env <<EOF
+cat > .env << EOF
+REACT_APP_STELLAR_NETWORK=testnet
+REACT_APP_STELLAR_RPC_URL=https://soroban-testnet.stellar.org
+REACT_APP_STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
 REACT_APP_CLOAKWORK_VERIFIER_CONTRACT_ID=$VERIFIER_ID
 REACT_APP_CLOAKWORK_REGISTRY_CONTRACT_ID=$REGISTRY_ID
 REACT_APP_GATED_ACTION_CONTRACT_ID=$GATED_ID
@@ -140,15 +140,15 @@ TTL values used:
 
 ---
 
-## Deployed contract IDs (Stellar testnet)
+## Currently deployed contract IDs (Stellar testnet — Protocol 27)
 
 | Contract | ID |
 |---|---|
-| `cloakwork_verifier` | `CAWS5HXLKELNROV2G23IWS4QY5DU5NSNLPD7WN4NAZKTN53D55IYTN6E` |
-| `cloakwork_registry` | `CBIACVGBZHTQLUGFEL52GUI6B4FYE7TVR2GOV4G6UO45X6FSFGO6IYB3` |
-| `gated_action_demo` | `CCJ3EVUUWQINTVKRTD6LSBL7IKMUYAHIJ4X3SATV2MKRLVS67J6KUQFP` |
+| `cloakwork_verifier` | `CAYOV2FM3LEAKY7UKYGOLK5JTHKXJ4DT2RWTKDPP2LBS5VMLKIQFWNI5` |
+| `cloakwork_registry` | `CATC4JJXRAV3SSJACS6IPSOUMIFC7EEJNDP47QSNNIZUTKEDM2VCWSV5` |
+| `gated_action_demo`  | `CAAUNLRCKYQGC3N3EL2MCXVJU2QHBAPRTMS2H7ZHAN5WJ4HA2UX4E23G` |
 
 View on [Stellar Expert (testnet)](https://stellar.expert/explorer/testnet):
-- [Verifier](https://stellar.expert/explorer/testnet/contract/CAWS5HXLKELNROV2G23IWS4QY5DU5NSNLPD7WN4NAZKTN53D55IYTN6E)
-- [Registry](https://stellar.expert/explorer/testnet/contract/CBIACVGBZHTQLUGFEL52GUI6B4FYE7TVR2GOV4G6UO45X6FSFGO6IYB3)
-- [GatedAction](https://stellar.expert/explorer/testnet/contract/CCJ3EVUUWQINTVKRTD6LSBL7IKMUYAHIJ4X3SATV2MKRLVS67J6KUQFP)
+- [Verifier](https://stellar.expert/explorer/testnet/contract/CAYOV2FM3LEAKY7UKYGOLK5JTHKXJ4DT2RWTKDPP2LBS5VMLKIQFWNI5)
+- [Registry](https://stellar.expert/explorer/testnet/contract/CATC4JJXRAV3SSJACS6IPSOUMIFC7EEJNDP47QSNNIZUTKEDM2VCWSV5)
+- [GatedAction](https://stellar.expert/explorer/testnet/contract/CAAUNLRCKYQGC3N3EL2MCXVJU2QHBAPRTMS2H7ZHAN5WJ4HA2UX4E23G)

@@ -41,7 +41,7 @@ Stellar Wallets Kit
 | `owner_commitment` (Poseidon hash) | DNSSEC RRset / RRSIG / DNSKEY bytes |
 | `nullifier` (Poseidon hash) | nonce, secret |
 | RRSIG validity timestamps | |
-| Groth16 proof bytes (192 bytes) | |
+| Groth16 proof bytes (256 bytes) | |
 
 ---
 
@@ -66,8 +66,8 @@ cloakwork/
 
 ## Prerequisites
 
-- [Rust](https://rustup.rs/) (stable, 2021 edition)
-- [Stellar CLI](https://developers.stellar.org/docs/tools/cli) `>= 22.0.0`
+- [Rust](https://rustup.rs/) (stable ≥ 1.91, 2021 edition) + `wasm32v1-none` target
+- [Stellar CLI](https://developers.stellar.org/docs/tools/cli) `>= 27.0.0`
 - [Node.js](https://nodejs.org/) `>= 18`
 - [Circom](https://docs.circom.io/getting-started/installation/) `>= 2.0.0`
 - [snarkjs](https://github.com/iden3/snarkjs) `npm install -g snarkjs`
@@ -152,7 +152,7 @@ use cloakwork_sdk::CloakworkClient;
 fn my_gated_function(env: Env, owner: Address, nullifier: BytesN<32>) {
     // Panics with auth error if credential is invalid, expired, or revoked
     CloakworkClient::require_valid_credential(&env, REGISTRY_ADDRESS, owner, nullifier);
-    // Protected logic follows — domain identity verified, zero knowledge revealed
+    // Protected logic follows — domain identity verified, zero knowledge preserved
 }
 ```
 
@@ -169,7 +169,7 @@ No ZK knowledge required. The SDK handles all cross-contract calls to the Regist
 - `nullifier` — Poseidon(domain_bytes, secret)
 - `not_before` / `not_after` — RRSIG validity window timestamps
 - `verifier_version` — circuit version identifier
-- Groth16 proof bytes (192 bytes)
+- Groth16 proof bytes (256 bytes)
 
 **What never leaves your browser:**
 - Domain name string
@@ -185,7 +185,7 @@ No ZK knowledge required. The SDK handles all cross-contract calls to the Regist
 | Layer | Technology |
 |---|---|
 | ZK Circuit | Circom 2.0 + snarkjs (Groth16) |
-| On-chain verification | Soroban (Rust) + Stellar Protocol 25 BN254 host functions |
+| On-chain verification | Soroban (Rust) + Stellar Protocol 25+ BN254 host functions |
 | ZK-friendly hash | Poseidon (native Stellar Protocol 25 host function) |
 | Blockchain | Stellar testnet |
 | Frontend | React + TypeScript |
