@@ -133,15 +133,19 @@ impl CloakworkRegistry {
             .ok_or(RegistryError::Unauthorized)?;
 
         // Build the public_inputs vector (8 elements) for the verifier.
+        // Order MUST match the circuit's public signal declaration:
+        // [0]=domain_commitment, [1]=record_commitment, [2]=owner_commitment,
+        // [3]=nullifier, [4]=not_before, [5]=not_after,
+        // [6]=dnskey_root_hash, [7]=verifier_version
         let mut inputs_vec: Vec<BytesN<32>> = Vec::new(&env);
-        inputs_vec.push_back(public_inputs.domain_commitment.clone());
-        inputs_vec.push_back(public_inputs.record_commitment.clone());
-        inputs_vec.push_back(public_inputs.owner_commitment.clone());
-        inputs_vec.push_back(public_inputs.nullifier.clone());
-        inputs_vec.push_back(public_inputs.dnskey_root_hash.clone());
-        inputs_vec.push_back(u64_to_bytes32(&env, public_inputs.not_before));
-        inputs_vec.push_back(u64_to_bytes32(&env, public_inputs.not_after));
-        inputs_vec.push_back(u32_to_bytes32(&env, public_inputs.verifier_version));
+        inputs_vec.push_back(public_inputs.domain_commitment.clone()); // [0]
+        inputs_vec.push_back(public_inputs.record_commitment.clone());  // [1]
+        inputs_vec.push_back(public_inputs.owner_commitment.clone());   // [2]
+        inputs_vec.push_back(public_inputs.nullifier.clone());          // [3]
+        inputs_vec.push_back(u64_to_bytes32(&env, public_inputs.not_before)); // [4]
+        inputs_vec.push_back(u64_to_bytes32(&env, public_inputs.not_after));  // [5]
+        inputs_vec.push_back(public_inputs.dnskey_root_hash.clone());   // [6]
+        inputs_vec.push_back(u32_to_bytes32(&env, public_inputs.verifier_version)); // [7]
 
         let verified: Result<bool, soroban_sdk::Error> = env.invoke_contract(
             &verifier,
