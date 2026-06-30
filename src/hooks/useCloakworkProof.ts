@@ -88,6 +88,7 @@ export type CloakworkProofHook = ProofState & CloakworkProofActions;
 interface PrivateData {
   nonce: Uint8Array;
   secret: Uint8Array;
+  walletAddress: string;
   dnssecMaterial: DNSSECMaterial | null;
 }
 
@@ -180,6 +181,7 @@ export function useCloakworkProof(): CloakworkProofHook {
   const privateRef = useRef<PrivateData>({
     nonce: new Uint8Array(32),
     secret: new Uint8Array(32),
+    walletAddress: '',
     dnssecMaterial: null,
   });
 
@@ -219,7 +221,7 @@ export function useCloakworkProof(): CloakworkProofHook {
     const secret = crypto.getRandomValues(new Uint8Array(32));
 
     // Store privately — never goes into state or sessionStorage
-    privateRef.current = { nonce, secret, dnssecMaterial: null };
+    privateRef.current = { nonce, secret, walletAddress, dnssecMaterial: null };
 
     // Derive commitments using the existing Poseidon-based utilities
     const domainBytes = new TextEncoder().encode(domain);
@@ -276,7 +278,7 @@ export function useCloakworkProof(): CloakworkProofHook {
 
   const generateProof = useCallback(async (): Promise<void> => {
     const { domain, ownerCommitment } = state;
-    const { nonce, secret, dnssecMaterial } = privateRef.current;
+    const { nonce, secret, walletAddress, dnssecMaterial } = privateRef.current;
 
     if (!domain || !dnssecMaterial) {
       setError('proof_error', 'Missing domain or DNSSEC material — complete previous steps first');
@@ -295,6 +297,7 @@ export function useCloakworkProof(): CloakworkProofHook {
           domain,
           nonce: Array.from(nonce),
           secret: Array.from(secret),
+          walletAddress,
           ownerCommitment: ownerCommitment ?? '',
         },
         dnssecMaterial: {
@@ -324,6 +327,7 @@ export function useCloakworkProof(): CloakworkProofHook {
     privateRef.current = {
       nonce: new Uint8Array(32),
       secret: new Uint8Array(32),
+      walletAddress: '',
       dnssecMaterial: null,
     };
     try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
@@ -358,6 +362,7 @@ interface WorkerPayload {
     domain: string;
     nonce: number[];
     secret: number[];
+    walletAddress: string;
     ownerCommitment: string;
   };
   dnssecMaterial: {

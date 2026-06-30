@@ -28,16 +28,15 @@ async function buildWitnessInputs(payload) {
   const secret  = new Uint8Array(challenge.secret);
   const rrset   = new Uint8Array(dnssecMaterial.rrset);
   const dnskey  = new Uint8Array(dnssecMaterial.dnskey);
+  // Use the actual wallet address bytes for owner_bytes_hash
+  const ownerBytes  = new TextEncoder().encode(challenge.walletAddress);
 
   const domainBigInt = bytesToBigInt(domainBytes) % (2n ** 254n);
   const nonceBigInt  = bytesToBigInt(nonce) % (2n ** 254n);
   const secretBigInt = bytesToBigInt(secret) % (2n ** 254n);
   const rrsetBigInt  = bytesToBigInt(rrset) % (2n ** 254n);
   const dnskeyBigInt = bytesToBigInt(dnskey) % (2n ** 254n);
-
-  // Use a deterministic owner hash derived from domain + ":owner"
-  const ownerBytes  = new TextEncoder().encode(challenge.domain + ':owner');
-  const ownerBigInt = bytesToBigInt(ownerBytes) % (2n ** 254n);
+  const ownerBigInt  = bytesToBigInt(ownerBytes) % (2n ** 254n);
 
   // Compute public outputs using Poseidon — must exactly satisfy circuit constraints:
   //   domain_commitment = Poseidon(domain_bytes_hash, nonce)
