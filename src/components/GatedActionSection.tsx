@@ -109,7 +109,7 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
             expiresAt: Number(native.expires_at ?? 0),
             verifierVersion: Number(native.verifier_version ?? 1),
             status,
-            owner: walletAddress!,
+            owner: walletAddress,
             registryContractId: config.registryContractId,
             txHash: '',
           });
