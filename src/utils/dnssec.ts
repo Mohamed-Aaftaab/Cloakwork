@@ -153,9 +153,9 @@ function parseRRSIGWindow(rdata: string): { notBefore: number; notAfter: number 
       return { notBefore: inception, notAfter: expiration };
     }
   }
-  // Fallback: use current time ±1 day
-  const now = Math.floor(Date.now() / 1000);
-  return { notBefore: now - 86400, notAfter: now + 86400 };
+  // If we can't parse a valid window, throw — don't silently use a fake window.
+  // A missing RRSIG timestamp means the DNSSEC data is malformed.
+  throw new Error('Could not parse RRSIG validity window from DNS response. The DNSSEC record may be malformed.');
 }
 
 /**

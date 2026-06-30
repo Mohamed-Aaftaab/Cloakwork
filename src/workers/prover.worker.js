@@ -31,12 +31,15 @@ async function buildWitnessInputs(payload) {
   // Use the actual wallet address bytes for owner_bytes_hash
   const ownerBytes  = new TextEncoder().encode(challenge.walletAddress);
 
-  const domainBigInt = bytesToBigInt(domainBytes) % (2n ** 254n);
-  const nonceBigInt  = bytesToBigInt(nonce) % (2n ** 254n);
-  const secretBigInt = bytesToBigInt(secret) % (2n ** 254n);
-  const rrsetBigInt  = bytesToBigInt(rrset) % (2n ** 254n);
-  const dnskeyBigInt = bytesToBigInt(dnskey) % (2n ** 254n);
-  const ownerBigInt  = bytesToBigInt(ownerBytes) % (2n ** 254n);
+  // Convert bytes to field elements — circomlibjs Poseidon automatically
+  // reduces inputs modulo the BN254 scalar field order r, so no manual
+  // modular reduction is needed here.
+  const domainBigInt = bytesToBigInt(domainBytes);
+  const nonceBigInt  = bytesToBigInt(nonce);
+  const secretBigInt = bytesToBigInt(secret);
+  const rrsetBigInt  = bytesToBigInt(rrset);
+  const dnskeyBigInt = bytesToBigInt(dnskey);
+  const ownerBigInt  = bytesToBigInt(ownerBytes);
 
   // Compute public outputs using Poseidon — must exactly satisfy circuit constraints:
   //   domain_commitment = Poseidon(domain_bytes_hash, nonce)

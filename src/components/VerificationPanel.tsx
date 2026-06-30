@@ -166,7 +166,7 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       const hash = submitResult.hash;
       setTxHash(hash);
 
-      // Poll for confirmation
+      // Poll for confirmation — 20 attempts × 3s = 60s max
       let getResult = await server.getTransaction(hash);
       let attempts = 0;
       while (getResult.status === StellarRpc.Api.GetTransactionStatus.NOT_FOUND && attempts < 20) {
@@ -175,12 +175,19 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
         attempts++;
       }
 
+      if (getResult.status === StellarRpc.Api.GetTransactionStatus.NOT_FOUND) {
+        throw new Error(`Transaction not confirmed after 60s. It may still process. Check: ${EXPLORER}/tx/${hash}`);
+      }
+
       if (getResult.status === StellarRpc.Api.GetTransactionStatus.FAILED) {
         throw new Error(`Transaction failed on-chain. Check: ${EXPLORER}/tx/${hash}`);
       }
 
       // Parse the DomainCredential from the return value
       const now = Math.floor(Date.now() / 1000);
+      // Derive expiry fallback from not_after public signal (index 5)
+      const notAfterFallback = Number(proof.publicSignals[5] ?? now + 2_592_000);
+      const expiryFallback = Math.min(notAfterFallback, now + 2_592_000);
 
       // Convert public signal decimal strings to hex for consistent display
       function decimalToHex(dec: string): string {
@@ -192,7 +199,7 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
         commitment: decimalToHex(proof.publicSignals[0] ?? '0'),
         nullifier: decimalToHex(proof.publicSignals[3] ?? '0'),
         issuedAt: now,
-        expiresAt: now + 2_592_000,
+        expiresAt: expiryFallback,
         verifierVersion: Number(proof.publicSignals[7] ?? 1),
         status: 'Active',
         owner: walletAddress,

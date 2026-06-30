@@ -98,13 +98,17 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
       const hash = submitResult.hash;
       setTxHash(hash);
 
-      // Poll for confirmation
+      // Poll for confirmation — 20 attempts × 3s = 60s max
       let getResult = await server.getTransaction(hash);
       let attempts = 0;
       while (getResult.status === StellarRpc.Api.GetTransactionStatus.NOT_FOUND && attempts < 20) {
         await new Promise(r => setTimeout(r, 3000));
         getResult = await server.getTransaction(hash);
         attempts++;
+      }
+
+      if (getResult.status === StellarRpc.Api.GetTransactionStatus.NOT_FOUND) {
+        throw new Error(`Transaction not confirmed after 60s. It may still process. Check: ${EXPLORER}/tx/${hash}`);
       }
 
       if (getResult.status === StellarRpc.Api.GetTransactionStatus.FAILED) {
