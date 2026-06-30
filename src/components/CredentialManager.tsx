@@ -9,10 +9,13 @@ import {
   nativeToScVal,
 } from '@stellar/stellar-sdk';
 import { CredentialCard, CredentialData } from './CredentialCard';
-import { useStellarWallet } from '../hooks/useStellarWallet';
 import { config } from '../config';
 
 const EXPLORER = 'https://stellar.expert/explorer/testnet';
+
+interface Props {
+  walletAddress: string;
+}
 
 /**
  * Credential management panel.
@@ -20,22 +23,22 @@ const EXPLORER = 'https://stellar.expert/explorer/testnet';
  * Loads all DomainCredentials for the connected wallet from the
  * cloakwork_registry contract via simulation read calls.
  * No signing required for reads.
+ * walletAddress is passed as a prop from App.tsx to avoid duplicate hook state.
  */
-export function CredentialManager() {
-  const wallet = useStellarWallet();
+export function CredentialManager({ walletAddress }: Props) {
   const [credentials, setCredentials] = useState<CredentialData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (wallet.address && config.registryContractId) {
+    if (walletAddress && config.registryContractId) {
       loadCredentials();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet.address]);
+  }, [walletAddress]);
 
   async function loadCredentials() {
-    if (!wallet.address || !config.registryContractId) return;
+    if (!walletAddress || !config.registryContractId) return;
     setLoading(true);
     setError(null);
     try {
@@ -43,7 +46,7 @@ export function CredentialManager() {
       const contract = new Contract(config.registryContractId);
 
       // Build a simulation-only account (real sequence number from RPC)
-      const simAccount = await server.getAccount(wallet.address);
+      const simAccount = await server.getAccount(walletAddress);
 
       // 1. Fetch the list of nullifiers owned by this wallet
       const listTx = new TransactionBuilder(simAccount, {
@@ -52,7 +55,7 @@ export function CredentialManager() {
       })
         .addOperation(contract.call(
           'get_credentials_by_owner',
-          nativeToScVal(wallet.address, { type: 'address' })
+          nativeToScVal(walletAddress, { type: 'address' })
         ))
         .setTimeout(30)
         .build();
@@ -113,7 +116,7 @@ export function CredentialManager() {
             expiresAt: Number(native.expires_at ?? 0),
             verifierVersion: Number(native.verifier_version ?? 1),
             status,
-            owner: wallet.address!,
+            owner: walletAddress!,
             registryContractId: config.registryContractId,
             txHash: '',
           });

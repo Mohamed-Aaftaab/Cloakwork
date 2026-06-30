@@ -10,34 +10,39 @@ import {
 } from '@stellar/stellar-sdk';
 import { GatedActionDemo } from './GatedActionDemo';
 import { CredentialData } from './CredentialCard';
-import { useStellarWallet } from '../hooks/useStellarWallet';
 import { config } from '../config';
+
+interface Props {
+  walletAddress: string;
+  signTransaction: (xdr: string) => Promise<string>;
+}
 
 /**
  * Gated action section — loads real credentials from the registry and
  * passes them to the GatedActionDemo component for the on-chain demo.
+ * walletAddress + signTransaction are passed as props from App.tsx to avoid
+ * duplicate useStellarWallet() hook state.
  */
-export function GatedActionSection() {
-  const wallet = useStellarWallet();
+export function GatedActionSection({ walletAddress, signTransaction }: Props) {
   const [credentials, setCredentials] = useState<CredentialData[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (wallet.address && config.registryContractId) {
+    if (walletAddress && config.registryContractId) {
       loadCredentials();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet.address]);
+  }, [walletAddress]);
 
   async function loadCredentials() {
-    if (!wallet.address || !config.registryContractId) return;
+    if (!walletAddress || !config.registryContractId) return;
     setLoading(true);
     try {
       const server = new StellarRpc.Server(config.rpcUrl);
       const contract = new Contract(config.registryContractId);
 
       // Fetch real account for sequence number
-      const account = await server.getAccount(wallet.address);
+      const account = await server.getAccount(walletAddress);
 
       // 1. Get nullifiers for this wallet
       const listTx = new TransactionBuilder(account, {
@@ -46,7 +51,7 @@ export function GatedActionSection() {
       })
         .addOperation(contract.call(
           'get_credentials_by_owner',
-          nativeToScVal(wallet.address, { type: 'address' })
+          nativeToScVal(walletAddress, { type: 'address' })
         ))
         .setTimeout(30)
         .build();
@@ -104,7 +109,7 @@ export function GatedActionSection() {
             expiresAt: Number(native.expires_at ?? 0),
             verifierVersion: Number(native.verifier_version ?? 1),
             status,
-            owner: wallet.address!,
+            owner: walletAddress!,
             registryContractId: config.registryContractId,
             txHash: '',
           });
@@ -142,8 +147,8 @@ export function GatedActionSection() {
       {activeCount > 0 && (
         <GatedActionDemo
           credentials={credentials}
-          walletAddress={wallet.address ?? ''}
-          signTransaction={wallet.signTransaction}
+          walletAddress={walletAddress ?? ''}
+          signTransaction={signTransaction}
         />
       )}
 

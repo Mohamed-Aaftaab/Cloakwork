@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Contract,
   Networks,
@@ -32,6 +32,17 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+
+  // Sync selected when credentials load asynchronously — initialState captures
+  // the first render's empty array, so we need to update when credentials arrive.
+  useEffect(() => {
+    setSelected(prev => {
+      // If we already have a valid selection that's still in the active list, keep it
+      if (prev && activeCredentials.some(c => c.nullifier === prev.nullifier)) return prev;
+      // Otherwise default to the first active credential
+      return activeCredentials[0] ?? null;
+    });
+  }, [credentials]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (activeCredentials.length === 0) return null;
 

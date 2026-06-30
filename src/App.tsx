@@ -128,8 +128,8 @@ function App() {
           // Wallet connected — show the active section
           <>
             {activeTab === 'proof' && <ProofWorkspace wallet={wallet} />}
-            {activeTab === 'credentials' && <CredentialManager />}
-            {activeTab === 'gated' && <GatedActionSection />}
+            {activeTab === 'credentials' && <CredentialManager walletAddress={wallet.address ?? ''} />}
+            {activeTab === 'gated' && <GatedActionSection walletAddress={wallet.address ?? ''} signTransaction={wallet.signTransaction} />}
           </>
         )}
       </main>
