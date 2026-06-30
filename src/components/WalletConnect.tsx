@@ -1,5 +1,5 @@
 import React from 'react';
-import { truncateAddress } from '../utils/format';
+import { truncateAddress } from '../utils/formatAddress';
 
 interface WalletConnectProps {
   address?: string | null;

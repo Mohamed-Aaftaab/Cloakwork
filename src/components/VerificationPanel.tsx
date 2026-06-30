@@ -181,9 +181,16 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
 
       // Parse the DomainCredential from the return value
       const now = Math.floor(Date.now() / 1000);
+
+      // Convert public signal decimal strings to hex for consistent display
+      function decimalToHex(dec: string): string {
+        const n = BigInt(dec);
+        return n.toString(16).padStart(64, '0');
+      }
+
       let issuedCredential: CredentialData = {
-        commitment: proof.publicSignals[0] ?? '',
-        nullifier: proof.publicSignals[3] ?? '',
+        commitment: decimalToHex(proof.publicSignals[0] ?? '0'),
+        nullifier: decimalToHex(proof.publicSignals[3] ?? '0'),
         issuedAt: now,
         expiresAt: now + 2_592_000,
         verifierVersion: 1,

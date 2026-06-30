@@ -36,7 +36,7 @@ export function PrivacyPanel() {
               'not_before  (RRSIG inception timestamp)',
               'not_after   (RRSIG expiry timestamp)',
               'verifier_version   (circuit version)',
-              'Groth16 proof bytes (192 bytes)',
+              'Groth16 proof bytes (256 bytes)',
             ].map(item => (
               <div key={item} style={{ color: '#a0aec0', fontSize: '0.78rem', marginBottom: '0.25rem', display: 'flex', gap: '0.4rem' }}>
                 <span style={{ color: '#4a5568' }}>•</span>{item}

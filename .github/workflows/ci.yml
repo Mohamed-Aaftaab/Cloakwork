@@ -16,7 +16,7 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          targets: wasm32v1-none
           components: clippy
 
       - name: Cache cargo registry
@@ -37,8 +37,8 @@ jobs:
 
       - name: Build Wasm
         run: |
-          rustup target add wasm32-unknown-unknown
-          cargo build --target wasm32-unknown-unknown --release --workspace \
+          rustup target add wasm32v1-none
+          cargo build --target wasm32v1-none --release --workspace \
             --exclude cloakwork-types --exclude cloakwork-sdk
 
   frontend:
