@@ -71,12 +71,11 @@ export function CredentialManager() {
         return;
       }
 
-      // 2. Fetch each credential by nullifier
+      // 2. Fetch each credential by nullifier (reuse same account object)
       const loaded: CredentialData[] = [];
       for (const nullifier of nullifiers) {
         try {
-          const simAcc2 = await server.getAccount(wallet.address);
-          const credTx = new TransactionBuilder(simAcc2, {
+          const credTx = new TransactionBuilder(simAccount, {
             fee: '100',
             networkPassphrase: Networks.TESTNET,
           })

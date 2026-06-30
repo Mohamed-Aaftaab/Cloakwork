@@ -284,9 +284,13 @@ export function useCloakworkProof(): CloakworkProofHook {
       setError('proof_error', 'Missing domain or DNSSEC material — complete previous steps first');
       return;
     }
-    if (!nonce.some(b => b !== 0) && !secret.some(b => b !== 0)) {
+    if (!nonce.some(b => b !== 0) || !secret.some(b => b !== 0)) {
       // After a page reload the nonce/secret are zeroed — user must regenerate
       setError('proof_error', 'Private keys not available — please generate a new challenge');
+      return;
+    }
+    if (!walletAddress) {
+      setError('proof_error', 'Wallet address not available — please generate a new challenge');
       return;
     }
 

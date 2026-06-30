@@ -62,12 +62,11 @@ export function GatedActionSection() {
         return;
       }
 
-      // 2. Load each credential
+      // 2. Load each credential (reuse same account to avoid repeated getAccount calls)
       const loaded: CredentialData[] = [];
       for (const nullifier of nullifiersNative as Uint8Array[]) {
         try {
-          const account2 = await server.getAccount(wallet.address);
-          const credTx = new TransactionBuilder(account2, {
+          const credTx = new TransactionBuilder(account, {
             fee: '100',
             networkPassphrase: Networks.TESTNET,
           })
