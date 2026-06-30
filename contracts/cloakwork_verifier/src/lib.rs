@@ -179,17 +179,23 @@ impl CloakworkVerifier {
         // Proof layout: pi_a (G1, 64 B) ‖ pi_b (G2, 128 B) ‖ pi_c (G1, 64 B) = 256 bytes
         let proof_a = {
             let mut arr = [0u8; BN254_G1_SERIALIZED_SIZE];
-            for i in 0..BN254_G1_SERIALIZED_SIZE { arr[i] = proof.get(i as u32).unwrap_or(0); }
+            for (j, byte) in arr.iter_mut().enumerate() {
+                *byte = proof.get(j as u32).unwrap_or(0);
+            }
             Bn254G1Affine::from_bytes(BytesN::from_array(&env, &arr))
         };
         let proof_b = {
             let mut arr = [0u8; BN254_G2_SERIALIZED_SIZE];
-            for i in 0..BN254_G2_SERIALIZED_SIZE { arr[i] = proof.get(64 + i as u32).unwrap_or(0); }
+            for (j, byte) in arr.iter_mut().enumerate() {
+                *byte = proof.get(64 + j as u32).unwrap_or(0);
+            }
             Bn254G2Affine::from_bytes(BytesN::from_array(&env, &arr))
         };
         let proof_c = {
             let mut arr = [0u8; BN254_G1_SERIALIZED_SIZE];
-            for i in 0..BN254_G1_SERIALIZED_SIZE { arr[i] = proof.get(192 + i as u32).unwrap_or(0); }
+            for (j, byte) in arr.iter_mut().enumerate() {
+                *byte = proof.get(192 + j as u32).unwrap_or(0);
+            }
             Bn254G1Affine::from_bytes(BytesN::from_array(&env, &arr))
         };
 
@@ -210,8 +216,8 @@ impl CloakworkVerifier {
 
         // Extract IC[0] (the starting accumulator point)
         let mut ic0_arr = [0u8; BN254_G1_SERIALIZED_SIZE];
-        for j in 0..BN254_G1_SERIALIZED_SIZE {
-            ic0_arr[j] = vk.gamma_abc_g1.get(j as u32).unwrap_or(0);
+        for (j, byte) in ic0_arr.iter_mut().enumerate() {
+            *byte = vk.gamma_abc_g1.get(j as u32).unwrap_or(0);
         }
         let mut vk_x = Bn254G1Affine::from_bytes(BytesN::from_array(&env, &ic0_arr));
 
@@ -220,8 +226,8 @@ impl CloakworkVerifier {
         for i in 0..n_inputs {
             let offset = ((i + 1) * BN254_G1_SERIALIZED_SIZE) as u32;
             let mut pt_arr = [0u8; BN254_G1_SERIALIZED_SIZE];
-            for j in 0..BN254_G1_SERIALIZED_SIZE {
-                pt_arr[j] = vk.gamma_abc_g1.get(offset + j as u32).unwrap_or(0);
+            for (j, byte) in pt_arr.iter_mut().enumerate() {
+                *byte = vk.gamma_abc_g1.get(offset + j as u32).unwrap_or(0);
             }
             let ic_pt = Bn254G1Affine::from_bytes(BytesN::from_array(&env, &pt_arr));
 

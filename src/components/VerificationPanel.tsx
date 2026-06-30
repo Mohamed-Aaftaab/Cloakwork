@@ -119,7 +119,7 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
         }),
         new xdr.ScMapEntry({
           key: xdr.ScVal.scvSymbol('verifier_version'),
-          val: xdr.ScVal.scvU32(1),
+          val: xdr.ScVal.scvU32(Number(proof.publicSignals[7] ?? 1)),
         }),
       ]);
 
@@ -193,7 +193,7 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
         nullifier: decimalToHex(proof.publicSignals[3] ?? '0'),
         issuedAt: now,
         expiresAt: now + 2_592_000,
-        verifierVersion: 1,
+        verifierVersion: Number(proof.publicSignals[7] ?? 1),
         status: 'Active',
         owner: walletAddress,
         registryContractId: registryId,
