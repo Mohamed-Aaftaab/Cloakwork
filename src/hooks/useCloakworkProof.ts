@@ -267,10 +267,11 @@ export function useCloakworkProof(): CloakworkProofHook {
       // Only the validity window timestamps go into React state.
       // The raw rrset/rrsig/dnskey bytes stay exclusively in privateRef —
       // they are NOT serialised to sessionStorage or visible in React DevTools state.
+      // NOTE: zero-length placeholders are stored in state; the real bytes are in privateRef
+      // and are forwarded to the Web Worker (private circuit inputs, never sent on-chain).
       setStatus('dnssec_found', {
         dnssecMaterial: {
-          // Placeholder Uint8Arrays — zero-length, not the real bytes.
-          // Real bytes live only in privateRef.current.dnssecMaterial.
+          // Zero-length placeholders — real bytes live only in privateRef.current.dnssecMaterial
           rrset: new Uint8Array(0),
           rrsig: new Uint8Array(0),
           dnskey: new Uint8Array(0),
@@ -286,7 +287,7 @@ export function useCloakworkProof(): CloakworkProofHook {
   // ── generateProof ────────────────────────────────────────────────────────
 
   const generateProof = useCallback(async (): Promise<void> => {
-    const { domain, ownerCommitment } = state;
+    const { domain } = state;
     const { nonce, secret, walletAddress, dnssecMaterial } = privateRef.current;
 
     if (!domain || !dnssecMaterial) {
@@ -311,7 +312,6 @@ export function useCloakworkProof(): CloakworkProofHook {
           nonce: Array.from(nonce),
           secret: Array.from(secret),
           walletAddress,
-          ownerCommitment: ownerCommitment ?? '',
           verifierVersion: 1,
         },
         dnssecMaterial: {
@@ -331,9 +331,9 @@ export function useCloakworkProof(): CloakworkProofHook {
     } catch (err: unknown) {
       setError('proof_error', err instanceof Error ? err.message : 'Proof generation failed');
     }
-  // Narrow deps: only domain + ownerCommitment from state; ref reads are stable
+  // Narrow deps: only domain from state; ref reads are stable
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.domain, state.ownerCommitment, setStatus, setError]);
+  }, [state.domain, setStatus, setError]);
 
   // ── setSubmitStatus ──────────────────────────────────────────────────────
 
@@ -392,7 +392,6 @@ interface WorkerPayload {
     nonce: number[];
     secret: number[];
     walletAddress: string;
-    ownerCommitment: string;
     /** Circuit version to use — defaults to 1 */
     verifierVersion: number;
   };

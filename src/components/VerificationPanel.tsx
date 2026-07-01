@@ -82,7 +82,9 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
     }
 
     proof.setSubmitStatus('submitting');
-    setSubmitError(null);    try {
+    setSubmitError(null);
+
+    try {
       const server = new StellarRpc.Server(config.rpcUrl);
       const account = await server.getAccount(walletAddress);
 
@@ -231,8 +233,6 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       const mapped = mapError(msg);
       setSubmitError(mapped);
       proof.setSubmitStatus('submit_error', mapped);
-    } finally {
-      // isSubmitting is derived from proof.status — no local state to clear
     }
   }
 
