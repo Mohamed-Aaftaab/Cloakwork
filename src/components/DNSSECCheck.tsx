@@ -25,13 +25,18 @@ export function DNSSECCheck({ proof }: Props) {
       </h3>
 
       {isFound && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span style={{ color: '#68d391', fontSize: '0.875rem' }}>✓ DNSSEC material found</span>
-          {proof.dnssecMaterial && (
-            <span style={{ color: '#718096', fontSize: '0.75rem' }}>
-              (valid {new Date(proof.dnssecMaterial.notBefore * 1000).toLocaleDateString()} – {new Date(proof.dnssecMaterial.notAfter * 1000).toLocaleDateString()})
-            </span>
-          )}
+        <div style={{ marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+            <span style={{ color: '#68d391', fontSize: '0.875rem' }}>✓ DNSSEC material found</span>
+            {proof.dnssecMaterial && (
+              <span style={{ color: '#718096', fontSize: '0.75rem' }}>
+                (valid {new Date(proof.dnssecMaterial.notBefore * 1000).toLocaleDateString()} – {new Date(proof.dnssecMaterial.notAfter * 1000).toLocaleDateString()})
+              </span>
+            )}
+          </div>
+          <p style={{ color: '#4a5568', fontSize: '0.72rem', margin: 0 }}>
+            Verifying RRSIG timestamp window and TXT record presence. Full RSA signature verification is a planned v2 milestone.
+          </p>
         </div>
       )}
 

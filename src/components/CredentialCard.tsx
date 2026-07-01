@@ -60,7 +60,9 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
       <div style={{ padding: '0.875rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#0f0f1a' }}>
         {([
           ['Owner', truncate(credential.owner)],
-          ['Commitment', truncate(credential.commitment, 12, 12)],
+          // commitment = Poseidon(domain_bytes) — hides domain while proving ownership
+          ['Domain commitment', truncate(credential.commitment, 12, 12)],
+          // nullifier = unique one-time tag — prevents double-issuance
           ['Nullifier', truncate(credential.nullifier, 12, 12)],
           ['Issued', formatTs(credential.issuedAt)],
           ['Expires', formatTs(credential.expiresAt)],
@@ -83,6 +85,12 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
             View on Stellar Explorer ↗
           </a>
         )}
+
+        {/* Commitment legend — clarifies privacy-preserving fields */}
+        <p style={{ color: '#4a5568', fontSize: '0.7rem', margin: '0.5rem 0 0', lineHeight: 1.5 }}>
+          Domain commitment = Poseidon(domain bytes) — proves ownership without revealing the domain.
+          Nullifier = unique one-time tag — prevents double-issuance of the same credential.
+        </p>
       </div>
 
       {credential.status === 'Active' && (
