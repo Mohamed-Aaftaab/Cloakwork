@@ -56,8 +56,10 @@ function decimalToHex(dec: string): string {
 export function VerificationPanel({ proof, walletAddress, signTransaction, onProofSubmitted }: Props) {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [credential, setCredential] = useState<CredentialData | null>(null);
+
+  // isSubmitting is derived from the proof state machine
+  const isSubmitting = proof.status === 'submitting';
 
   if (!['proof_ready', 'submitting', 'submit_error', 'credential_issued'].includes(proof.status)) {
     return null;
@@ -79,10 +81,8 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       return;
     }
 
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
+    proof.setSubmitStatus('submitting');
+    setSubmitError(null);    try {
       const server = new StellarRpc.Server(config.rpcUrl);
       const account = await server.getAccount(walletAddress);
 
@@ -224,12 +224,15 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       }
 
       setCredential(issuedCredential);
+      proof.setSubmitStatus('credential_issued');
       onProofSubmitted?.(hash);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Submission failed';
-      setSubmitError(mapError(msg));
+      const mapped = mapError(msg);
+      setSubmitError(mapped);
+      proof.setSubmitStatus('submit_error', mapped);
     } finally {
-      setIsSubmitting(false);
+      // isSubmitting is derived from proof.status — no local state to clear
     }
   }
 

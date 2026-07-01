@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Contract,
   Networks,
@@ -28,14 +28,7 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (walletAddress && config.registryContractId) {
-      loadCredentials();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletAddress]);
-
-  async function loadCredentials() {
+  const loadCredentials = useCallback(async () => {
     if (!walletAddress || !config.registryContractId) return;
     setLoading(true);
     setLoadError(null);
@@ -129,7 +122,13 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [walletAddress]);
+
+  useEffect(() => {
+    if (walletAddress && config.registryContractId) {
+      loadCredentials();
+    }
+  }, [walletAddress, loadCredentials]);
 
   const activeCount = credentials.filter(c => c.status === 'Active').length;
 
@@ -147,7 +146,7 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
         </div>
       )}
 
-      {!loading && credentials.length === 0 && (
+      {!loading && credentials.length === 0 && !loadError && (
         <div style={{ padding: '1rem', background: '#1a202c', borderRadius: '8px', border: '1px solid #2d3748', marginBottom: '1rem' }}>
           <p style={{ color: '#718096', fontSize: '0.875rem', margin: 0 }}>
             No credentials found for this wallet. Complete the proof flow in the "Create Proof" tab

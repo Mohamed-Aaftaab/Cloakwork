@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useCloakworkProof, ProofFlowStatus } from '../hooks/useCloakworkProof';
 
+// Inject the spin keyframe once at module load — no CSS file needed
+(function injectSpinKeyframe() {
+  if (typeof document === 'undefined') return;
+  const id = 'cloakwork-spin-keyframe';
+  if (document.getElementById(id)) return;
+  const style = document.createElement('style');
+  style.id = id;
+  style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+  document.head.appendChild(style);
+}());
+
 interface Props {
   proof: ReturnType<typeof useCloakworkProof>;
 }

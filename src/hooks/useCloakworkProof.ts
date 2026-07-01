@@ -77,6 +77,11 @@ export interface CloakworkProofActions {
    * Transitions: `dnssec_found` → `proving` → `proof_ready` or `proof_error`.
    */
   generateProof: () => Promise<void>;
+  /**
+   * Drive the submission part of the state machine from VerificationPanel.
+   * Transitions: `proof_ready` → `submitting` → `credential_issued` or `submit_error`.
+   */
+  setSubmitStatus: (status: 'submitting' | 'submit_error' | 'credential_issued', error?: string) => void;
   /** Reset to `idle` and clear all private data and sessionStorage. */
   reset: () => void;
 }
@@ -259,12 +264,16 @@ export function useCloakworkProof(): CloakworkProofHook {
       const material = await fetchDNSSECMaterial(domain);
       // Store the full material (including raw bytes) in the private ref
       privateRef.current = { ...privateRef.current, dnssecMaterial: material };
-      // Only expose the timestamps and metadata in state — raw bytes stay private
+      // Only the validity window timestamps go into React state.
+      // The raw rrset/rrsig/dnskey bytes stay exclusively in privateRef —
+      // they are NOT serialised to sessionStorage or visible in React DevTools state.
       setStatus('dnssec_found', {
         dnssecMaterial: {
-          rrset: material.rrset,
-          rrsig: material.rrsig,
-          dnskey: material.dnskey,
+          // Placeholder Uint8Arrays — zero-length, not the real bytes.
+          // Real bytes live only in privateRef.current.dnssecMaterial.
+          rrset: new Uint8Array(0),
+          rrsig: new Uint8Array(0),
+          dnskey: new Uint8Array(0),
           notBefore: material.notBefore,
           notAfter: material.notAfter,
         },
@@ -326,6 +335,19 @@ export function useCloakworkProof(): CloakworkProofHook {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.domain, state.ownerCommitment, setStatus, setError]);
 
+  // ── setSubmitStatus ──────────────────────────────────────────────────────
+
+  const setSubmitStatus = useCallback((
+    status: 'submitting' | 'submit_error' | 'credential_issued',
+    error?: string
+  ) => {
+    if (error) {
+      setError(status as ProofFlowStatus, error);
+    } else {
+      setStatus(status);
+    }
+  }, [setStatus, setError]);
+
   // ── reset ────────────────────────────────────────────────────────────────
 
   const reset = useCallback(() => {
@@ -357,6 +379,7 @@ export function useCloakworkProof(): CloakworkProofHook {
     generateChallenge,
     checkDNSSEC,
     generateProof,
+    setSubmitStatus,
     reset,
   };
 }

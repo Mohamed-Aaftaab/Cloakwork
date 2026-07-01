@@ -60,6 +60,16 @@ export function DNSSECCheck({ proof }: Props) {
               The DNSSEC RRSIG signature has expired. Wait for DNS TTL to expire and republish the record.
             </p>
           )}
+          {proof.error.includes('expiration is not after inception') && (
+            <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+              The RRSIG validity window is invalid (expiration before inception). The DNS record may be malformed — try re-publishing it.
+            </p>
+          )}
+          {proof.error.includes('Could not parse') && (
+            <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+              Could not read the RRSIG timestamp window. The DNSSEC response from your DNS provider may be in an unexpected format.
+            </p>
+          )}
         </div>
       )}
 

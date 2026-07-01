@@ -450,7 +450,9 @@ mod tests {
         }
     }
 
-    /// Build dummy `PublicInputs` with a specific nullifier byte.
+    // ── initialize tests ──────────────────────────────────────────────────────
+
+    /// Build dummy `PublicInputs` with a specific nullifier byte — used in retrieval tests.
     fn dummy_inputs_with_nullifier(env: &Env, now: u64, nullifier_byte: u8) -> PublicInputs {
         let zeros: BytesN<32> = BytesN::from_array(env, &[0u8; 32]);
         let mut null_arr = [0u8; 32];
@@ -465,11 +467,7 @@ mod tests {
             not_after: now + 10_000,
             verifier_version: 1,
         }
-    }
-
-    // ── initialize tests ──────────────────────────────────────────────────────
-
-    #[test]
+    }    #[test]
     fn test_initialize_success() {
         let env = make_env();
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
