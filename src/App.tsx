@@ -24,7 +24,7 @@ function App() {
       {/* ── Nav bar — matches landing page pill style ── */}
       <header className="app-nav" aria-label="App navigation">
         {/* Wordmark */}
-        <a className="app-nav-wordmark" href="/" aria-label="Back to home">
+        <a className="app-nav-wordmark" href="/landing.html" aria-label="Back to home">
           <span className="app-nav-mark" aria-hidden="true" />
           CLOAKWORK
         </a>
