@@ -20,7 +20,7 @@ export function DNSSECCheck({ proof }: Props) {
 
   return (
     <div style={{ marginBottom: '1.5rem' }}>
-      <h3 style={{ color: '#e2e8f0', fontSize: '1rem', marginBottom: '0.75rem' }}>
+      <h3 style={{ color: '#f7f9fa', fontSize: '1rem', marginBottom: '0.75rem' }}>
         Step 2 — Verify DNSSEC Record
       </h3>
 
@@ -29,12 +29,12 @@ export function DNSSECCheck({ proof }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
             <span style={{ color: '#68d391', fontSize: '0.875rem' }}>✓ DNSSEC material found</span>
             {proof.dnssecMaterial && (
-              <span style={{ color: '#718096', fontSize: '0.75rem' }}>
+              <span style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.75rem' }}>
                 (valid {new Date(proof.dnssecMaterial.notBefore * 1000).toLocaleDateString()} – {new Date(proof.dnssecMaterial.notAfter * 1000).toLocaleDateString()})
               </span>
             )}
           </div>
-          <p style={{ color: '#4a5568', fontSize: '0.72rem', margin: 0 }}>
+          <p style={{ color: 'rgba(247,249,250,0.28)', fontSize: '0.72rem', margin: 0 }}>
             Verifying RRSIG timestamp window and TXT record presence. Full RSA signature verification is a planned v2 milestone.
           </p>
         </div>
@@ -46,27 +46,27 @@ export function DNSSECCheck({ proof }: Props) {
             ✗ {proof.error}
           </div>
           {proof.error.includes('not found') && (
-            <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+            <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.8rem', margin: 0 }}>
               Make sure the TXT record from Step 1 is published at your DNS provider. DNS changes can take up to 10 minutes to propagate.
             </p>
           )}
           {proof.error.includes('DNSSEC') && (
-            <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+            <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.8rem', margin: 0 }}>
               Your domain zone is not DNSSEC-signed. Enable DNSSEC at your registrar before continuing.
             </p>
           )}
           {proof.error.includes('expired') && (
-            <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+            <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.8rem', margin: 0 }}>
               The DNSSEC RRSIG signature has expired. Wait for DNS TTL to expire and republish the record.
             </p>
           )}
           {proof.error.includes('expiration is not after inception') && (
-            <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+            <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.8rem', margin: 0 }}>
               The RRSIG validity window is invalid (expiration before inception). The DNS record may be malformed — try re-publishing it.
             </p>
           )}
           {proof.error.includes('Could not parse') && (
-            <p style={{ color: '#718096', fontSize: '0.8rem', margin: 0 }}>
+            <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.8rem', margin: 0 }}>
               Could not read the RRSIG timestamp window. The DNSSEC response from your DNS provider may be in an unexpected format.
             </p>
           )}
@@ -79,8 +79,8 @@ export function DNSSECCheck({ proof }: Props) {
           disabled={isChecking}
           style={{
             padding: '8px 18px', fontSize: '0.875rem',
-            border: '1px solid #667eea', borderRadius: '6px',
-            background: '#667eea22', color: '#667eea',
+            border: '1px solid #af50ff', borderRadius: '6px',
+            background: '#af50ff22', color: '#af50ff',
             cursor: isChecking ? 'not-allowed' : 'pointer',
             fontWeight: 600, opacity: isChecking ? 0.6 : 1,
           }}
@@ -90,7 +90,7 @@ export function DNSSECCheck({ proof }: Props) {
       )}
 
       {isChecking && (
-        <p style={{ color: '#718096', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+        <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
           Querying Cloudflare DoH for _stellar-cloakwork.{proof.domain}…
         </p>
       )}

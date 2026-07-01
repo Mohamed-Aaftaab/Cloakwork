@@ -14,7 +14,7 @@ export function PrivacyPanel() {
         onClick={() => setOpen(o => !o)}
         style={{
           width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '0.75rem 1rem', background: '#1a202c', border: 'none', cursor: 'pointer',
+          padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.06)', border: 'none', cursor: 'pointer',
           color: '#a0aec0', fontSize: '0.875rem', fontWeight: 600,
         }}
       >
@@ -23,7 +23,7 @@ export function PrivacyPanel() {
       </button>
 
       {open && (
-        <div style={{ padding: '1rem', background: '#0f0f1a', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ padding: '1rem', background: '#090909', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div>
             <div style={{ color: '#fc8181', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               On-chain (visible to all)
@@ -39,7 +39,7 @@ export function PrivacyPanel() {
               'Groth16 proof bytes (256 bytes)',
             ].map(item => (
               <div key={item} style={{ color: '#a0aec0', fontSize: '0.78rem', marginBottom: '0.25rem', display: 'flex', gap: '0.4rem' }}>
-                <span style={{ color: '#4a5568' }}>•</span>{item}
+                <span style={{ color: 'rgba(247,249,250,0.28)' }}>•</span>{item}
               </div>
             ))}
           </div>
@@ -58,7 +58,7 @@ export function PrivacyPanel() {
               'secret  (32 random bytes)',
             ].map(item => (
               <div key={item} style={{ color: '#a0aec0', fontSize: '0.78rem', marginBottom: '0.25rem', display: 'flex', gap: '0.4rem' }}>
-                <span style={{ color: '#4a5568' }}>•</span>{item}
+                <span style={{ color: 'rgba(247,249,250,0.28)' }}>•</span>{item}
               </div>
             ))}
           </div>

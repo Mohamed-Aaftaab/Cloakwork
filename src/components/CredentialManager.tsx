@@ -192,7 +192,7 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
   return (
     <div style={{ padding: '1.5rem 0', maxWidth: '680px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2 style={{ color: '#e2e8f0', fontSize: '1.1rem', margin: 0 }}>My Credentials</h2>
+        <h2 style={{ color: '#f7f9fa', fontSize: '1.1rem', margin: 0 }}>My Credentials</h2>
         <button
           onClick={loadCredentials}
           disabled={loading}
@@ -219,27 +219,27 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {[0, 1].map(i => (
             <div key={i} style={{ border: '1px solid #2d3748', borderRadius: '12px', overflow: 'hidden', maxWidth: '600px' }}>
-              <div style={{ background: '#1a202c', padding: '0.875rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ width: '120px', height: '14px', background: '#2d3748', borderRadius: '4px' }} />
-                <div style={{ width: '50px', height: '20px', background: '#2d3748', borderRadius: '9999px' }} />
+              <div style={{ background: 'rgba(255,255,255,0.06)', padding: '0.875rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ width: '120px', height: '14px', background: 'rgba(247,249,250,0.12)', borderRadius: '4px' }} />
+                <div style={{ width: '50px', height: '20px', background: 'rgba(247,249,250,0.12)', borderRadius: '9999px' }} />
               </div>
-              <div style={{ padding: '0.875rem 1rem', background: '#0f0f1a', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <div style={{ padding: '0.875rem 1rem', background: '#090909', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 {[0,1,2,3].map(j => (
                   <div key={j} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ width: '70px', height: '12px', background: '#1a202c', borderRadius: '4px' }} />
-                    <div style={{ width: '140px', height: '12px', background: '#1a202c', borderRadius: '4px' }} />
+                    <div style={{ width: '70px', height: '12px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px' }} />
+                    <div style={{ width: '140px', height: '12px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px' }} />
                   </div>
                 ))}
               </div>
             </div>
           ))}
-          <p style={{ color: '#4a5568', fontSize: '0.78rem', margin: 0 }}>Loading credentials from registry…</p>
+          <p style={{ color: 'rgba(247,249,250,0.28)', fontSize: '0.78rem', margin: 0 }}>Loading credentials from registry…</p>
         </div>
       )}
 
       {!loading && credentials.length === 0 && !error && (
-        <div style={{ padding: '1.25rem', background: '#1a202c', borderRadius: '8px', border: '1px solid #2d3748' }}>
-          <p style={{ color: '#718096', fontSize: '0.875rem', margin: 0 }}>
+        <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', border: '1px solid #2d3748' }}>
+          <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.875rem', margin: 0 }}>
             No credentials found for this wallet on testnet. Complete the "Create Proof" flow to issue one.
           </p>
         </div>

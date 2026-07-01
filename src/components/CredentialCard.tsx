@@ -52,12 +52,12 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
 
   return (
     <div style={{ border: '1px solid #2d3748', borderRadius: '12px', overflow: 'hidden', maxWidth: '600px' }}>
-      <div style={{ background: '#1a202c', padding: '0.875rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ color: '#e2e8f0', fontWeight: 700, fontSize: '0.9rem' }}>Domain Credential</span>
+      <div style={{ background: 'rgba(255,255,255,0.06)', padding: '0.875rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: '#f7f9fa', fontWeight: 700, fontSize: '0.9rem' }}>Domain Credential</span>
         {statusBadge(credential.status)}
       </div>
 
-      <div style={{ padding: '0.875rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#0f0f1a' }}>
+      <div style={{ padding: '0.875rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', background: '#090909' }}>
         {([
           ['Owner', truncate(credential.owner)],
           // commitment = Poseidon(domain_bytes) — hides domain while proving ownership
@@ -70,8 +70,8 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
           credential.registryContractId ? ['Registry contract', truncate(credential.registryContractId, 8, 8)] : null,
         ] as ([string, string] | null)[]).filter((x): x is [string, string] => x !== null).map(([label, value]) => (
           <div key={label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-            <span style={{ color: '#718096' }}>{label}</span>
-            <span style={{ color: '#e2e8f0', fontFamily: 'monospace' }}>{value}</span>
+            <span style={{ color: 'rgba(247,249,250,0.58)' }}>{label}</span>
+            <span style={{ color: '#f7f9fa', fontFamily: 'monospace' }}>{value}</span>
           </div>
         ))}
 
@@ -87,14 +87,14 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
         )}
 
         {/* Commitment legend — clarifies privacy-preserving fields */}
-        <p style={{ color: '#4a5568', fontSize: '0.7rem', margin: '0.5rem 0 0', lineHeight: 1.5 }}>
+        <p style={{ color: 'rgba(247,249,250,0.28)', fontSize: '0.7rem', margin: '0.5rem 0 0', lineHeight: 1.5 }}>
           Domain commitment = Poseidon(domain bytes) — proves ownership without revealing the domain.
           Nullifier = unique one-time tag — prevents double-issuance of the same credential.
         </p>
       </div>
 
       {(credential.status === 'Active' || credential.status === 'Expired') && (onRevoke || onRenew) && (
-        <div style={{ background: '#1a202c', padding: '0.75rem 1rem', display: 'flex', gap: '0.5rem' }}>
+        <div style={{ background: 'rgba(255,255,255,0.06)', padding: '0.75rem 1rem', display: 'flex', gap: '0.5rem' }}>
           {onRevoke && credential.status === 'Active' && (
             <button
               onClick={onRevoke}
@@ -106,7 +106,7 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
           {onRenew && (
             <button
               onClick={onRenew}
-              style={{ padding: '5px 12px', fontSize: '0.78rem', border: '1px solid #667eea', borderRadius: '5px', background: 'transparent', color: '#667eea', cursor: 'pointer' }}
+              style={{ padding: '5px 12px', fontSize: '0.78rem', border: '1px solid #af50ff', borderRadius: '5px', background: 'transparent', color: '#af50ff', cursor: 'pointer' }}
             >
               Renew
             </button>

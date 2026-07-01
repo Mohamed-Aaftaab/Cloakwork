@@ -243,7 +243,7 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
 
   return (
     <div style={{ marginBottom: '1.5rem' }}>
-      <h3 style={{ color: '#e2e8f0', fontSize: '1rem', marginBottom: '0.75rem' }}>
+      <h3 style={{ color: '#f7f9fa', fontSize: '1rem', marginBottom: '0.75rem' }}>
         Step 4 — Verify on Stellar
       </h3>
 
@@ -257,7 +257,7 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       )}
 
       {isSubmitting && (
-        <div style={{ color: '#718096', fontSize: '0.875rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.875rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span>⏳ Submitting to Soroban…</span>
           {txHash && (
             <a href={`${EXPLORER}/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
@@ -287,7 +287,7 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
           <p style={{ color: '#68d391', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
             ✓ Credential issued on Stellar testnet
           </p>
-          <p style={{ color: '#718096', fontSize: '0.78rem', marginBottom: '0.75rem' }}>
+          <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.78rem', marginBottom: '0.75rem' }}>
             Switch to the <strong style={{ color: '#a0aec0' }}>My Credentials</strong> tab to manage this credential (Revoke / Renew).
           </p>
           <CredentialCard credential={credential} networkExplorerBase={EXPLORER} />

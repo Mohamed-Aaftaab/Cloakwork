@@ -69,7 +69,7 @@ function stepStatusForElapsed(
 }
 
 const DOT: Record<StepStatus, { symbol: string; color: string }> = {
-  pending: { symbol: '○', color: '#4a5568' },
+  pending: { symbol: '○', color: 'rgba(247,249,250,0.28)' },
   active:  { symbol: '◌', color: '#f6ad55' },
   done:    { symbol: '●', color: '#68d391' },
   error:   { symbol: '✗', color: '#fc8181' },
@@ -106,12 +106,12 @@ export function ProofGenerator({ proof }: Props) {
 
   return (
     <div style={{ marginBottom: '1.5rem' }}>
-      <h3 style={{ color: '#e2e8f0', fontSize: '1rem', marginBottom: '0.75rem' }}>
+      <h3 style={{ color: '#f7f9fa', fontSize: '1rem', marginBottom: '0.75rem' }}>
         Step 3 — Generate ZK Proof
       </h3>
 
       {proof.status === 'proving' && (
-        <div style={{ marginBottom: '0.75rem', padding: '0.6rem 0.9rem', background: '#1a202c', borderRadius: '8px', border: '1px solid #2d3748', fontSize: '0.8rem', color: '#a0aec0', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ marginBottom: '0.75rem', padding: '0.6rem 0.9rem', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', border: '1px solid #2d3748', fontSize: '0.8rem', color: '#a0aec0', display: 'flex', justifyContent: 'space-between' }}>
           <span>⏱ Generating proof in your browser…</span>
           <span style={{ color: '#f6ad55' }}>
             {elapsed}s elapsed · ~{remaining}s remaining
@@ -128,11 +128,11 @@ export function ProofGenerator({ proof }: Props) {
               <span style={{ color, fontFamily: 'monospace', fontSize: '1rem', width: '16px', textAlign: 'center' }}>
                 {s === 'active' ? <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>{symbol}</span> : symbol}
               </span>
-              <span style={{ color: s === 'pending' ? '#4a5568' : s === 'error' ? '#fc8181' : '#e2e8f0', fontSize: '0.875rem' }}>
+              <span style={{ color: s === 'pending' ? 'rgba(247,249,250,0.28)' : s === 'error' ? '#fc8181' : '#f7f9fa', fontSize: '0.875rem' }}>
                 {step.label}
               </span>
               {s === 'active' && step.estimatedSeconds > 0 && (
-                <span style={{ color: '#4a5568', fontSize: '0.75rem' }}>~{step.estimatedSeconds}s</span>
+                <span style={{ color: 'rgba(247,249,250,0.28)', fontSize: '0.75rem' }}>~{step.estimatedSeconds}s</span>
               )}
             </div>
           );
@@ -156,7 +156,7 @@ export function ProofGenerator({ proof }: Props) {
       {proof.status === 'dnssec_found' && (
         <button
           onClick={proof.generateProof}
-          style={{ padding: '8px 18px', fontSize: '0.875rem', border: '1px solid #667eea', borderRadius: '6px', background: '#667eea22', color: '#667eea', cursor: 'pointer', fontWeight: 600 }}
+          style={{ padding: '8px 18px', fontSize: '0.875rem', border: '1px solid #af50ff', borderRadius: '6px', background: '#af50ff22', color: '#af50ff', cursor: 'pointer', fontWeight: 600 }}
         >
           Generate ZK Proof (~{TOTAL_ESTIMATED}s)
         </button>
@@ -164,11 +164,11 @@ export function ProofGenerator({ proof }: Props) {
 
       {proof.status === 'proof_ready' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '500px' }}>
-          <div style={{ background: '#1a202c', border: '1px solid #2d3748', borderRadius: '8px', padding: '0.75rem', fontSize: '0.8rem' }}>
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid #2d3748', borderRadius: '8px', padding: '0.75rem', fontSize: '0.8rem' }}>
             <div style={{ color: '#68d391', marginBottom: '0.25rem' }}>✓ Proof generated — ready to submit</div>
-            {proof.proofSizeBytes && <div style={{ color: '#718096' }}>Size: {proof.proofSizeBytes} bytes</div>}
-            {proof.publicSignals && <div style={{ color: '#718096' }}>{proof.publicSignals.length} public signals</div>}
-            <div style={{ color: '#4a5568', fontSize: '0.73rem', marginTop: '0.4rem' }}>
+            {proof.proofSizeBytes && <div style={{ color: 'rgba(247,249,250,0.58)' }}>Size: {proof.proofSizeBytes} bytes</div>}
+            {proof.publicSignals && <div style={{ color: 'rgba(247,249,250,0.58)' }}>{proof.publicSignals.length} public signals</div>}
+            <div style={{ color: 'rgba(247,249,250,0.28)', fontSize: '0.73rem', marginTop: '0.4rem' }}>
               Use the "Submit to Soroban" button below to issue your credential.
             </div>
           </div>

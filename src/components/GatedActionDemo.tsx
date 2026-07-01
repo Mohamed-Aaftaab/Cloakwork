@@ -144,17 +144,17 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
 
   return (
     <div style={{ maxWidth: '600px' }}>
-      <h2 style={{ color: '#e2e8f0', fontSize: '1.25rem', margin: '0 0 0.5rem 0' }}>
+      <h2 style={{ color: '#f7f9fa', fontSize: '1.25rem', margin: '0 0 0.5rem 0' }}>
         Gated Action Demo
       </h2>
-      <p style={{ color: '#718096', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
+      <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.875rem', marginBottom: '1.25rem' }}>
         This demo calls the <code style={{ color: '#90cdf4' }}>gated_action_demo</code> Soroban
         contract using the Cloakwork SDK. The contract verifies your credential without knowing
         your domain — one line of Rust is all it takes.
       </p>
 
-      <div style={{ background: '#1a202c', border: '1px solid #2d3748', borderRadius: '10px', padding: '1rem', marginBottom: '1rem' }}>
-        <div style={{ color: '#718096', fontSize: '0.75rem', marginBottom: '0.5rem' }}>How it works on-chain</div>
+      <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid #2d3748', borderRadius: '10px', padding: '1rem', marginBottom: '1rem' }}>
+        <div style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.75rem', marginBottom: '0.5rem' }}>How it works on-chain</div>
         <code style={{ color: '#90cdf4', fontSize: '0.78rem', lineHeight: 1.6, display: 'block' }}>
           {`CloakworkClient::require_valid_credential(\n  &env, registry_addr, owner, nullifier\n);\n// → emits ActionExecuted event`}
         </code>
@@ -169,7 +169,7 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
             id="credential-select"
             value={selected?.nullifier ?? ''}
             onChange={e => setSelected(activeCredentials.find(c => c.nullifier === e.target.value) ?? null)}
-            style={{ padding: '0.4rem 0.75rem', borderRadius: '6px', border: '1px solid #4a5568', background: '#1a202c', color: '#e2e8f0', fontSize: '0.875rem' }}
+            style={{ padding: '0.4rem 0.75rem', borderRadius: '6px', border: '1px solid #4a5568', background: 'rgba(255,255,255,0.06)', color: '#f7f9fa', fontSize: '0.875rem' }}
           >
             {activeCredentials.map(c => (
               <option key={c.nullifier} value={c.nullifier}>
@@ -191,13 +191,13 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
           <div style={{ color: '#68d391', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
             ✓ Verified Merchant Payment Intent created on Stellar testnet
           </div>
-          <div style={{ color: '#718096', fontSize: '0.78rem', marginBottom: '0.25rem' }}>
+          <div style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.78rem', marginBottom: '0.25rem' }}>
             Event emitted: <code style={{ color: '#90cdf4' }}>ActionExecuted</code>
           </div>
-          <div style={{ color: '#718096', fontSize: '0.78rem', marginBottom: '0.25rem' }}>
+          <div style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.78rem', marginBottom: '0.25rem' }}>
             Owner: <code style={{ color: '#a0aec0' }}>{walletAddress.slice(0, 12)}…</code>
           </div>
-          <div style={{ color: '#718096', fontSize: '0.78rem', marginBottom: '0.4rem' }}>
+          <div style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.78rem', marginBottom: '0.4rem' }}>
             Commitment: <code style={{ color: '#a0aec0' }}>{selected?.commitment?.slice(0, 16)}…</code>
           </div>
           <a href={`${EXPLORER}/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
@@ -212,8 +212,8 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
         disabled={isRunning || !selected}
         style={{
           padding: '10px 22px', fontSize: '0.9rem',
-          border: '1px solid #667eea', borderRadius: '8px',
-          background: '#667eea22', color: '#667eea',
+          border: '1px solid #af50ff', borderRadius: '8px',
+          background: '#af50ff22', color: '#af50ff',
           cursor: isRunning ? 'not-allowed' : 'pointer',
           fontWeight: 700, opacity: isRunning ? 0.6 : 1,
         }}
@@ -222,7 +222,7 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
       </button>
 
       {config.gatedActionContractId && (
-        <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#4a5568' }}>
+        <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'rgba(247,249,250,0.28)' }}>
           Contract: <code>{config.gatedActionContractId.slice(0, 12)}…</code>
         </div>
       )}

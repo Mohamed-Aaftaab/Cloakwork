@@ -24,12 +24,12 @@ export function Header({ walletAddress, onConnectClick, onDisconnectClick }: Hea
         justifyContent: 'space-between',
         padding: '0.75rem 1.5rem',
         borderBottom: '1px solid #2d3748',
-        backgroundColor: '#0f0f1a',
+        backgroundColor: '#090909',
       }}
     >
       {/* Brand */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#e2e8f0' }}>
+        <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#f7f9fa' }}>
           Cloakwork
         </h1>
         <NetworkBadge />
@@ -69,10 +69,10 @@ export function Header({ walletAddress, onConnectClick, onDisconnectClick }: Hea
             style={{
               padding: '6px 14px',
               fontSize: '0.85rem',
-              border: '1px solid #667eea',
+              border: '1px solid #af50ff',
               borderRadius: '6px',
-              background: '#667eea22',
-              color: '#667eea',
+              background: '#af50ff22',
+              color: '#af50ff',
               cursor: 'pointer',
               fontWeight: 600,
             }}

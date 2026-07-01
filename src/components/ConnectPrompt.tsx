@@ -6,55 +6,28 @@ interface ConnectPromptProps {
 }
 
 /**
- * Displayed in place of a protected section when no wallet is connected.
- * Clicking the button opens the wallet connection modal.
+ * Displayed when no wallet is connected.
+ * Styled to match the landing page design system.
  */
 export function ConnectPrompt({ sectionName, onConnectClick }: ConnectPromptProps) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '3rem 2rem',
-        border: '1px dashed #2d3748',
-        borderRadius: '12px',
-        textAlign: 'center',
-        gap: '1rem',
-      }}
-    >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#4a5568"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-      </svg>
-      <p style={{ margin: 0, color: '#718096', fontSize: '0.9rem' }}>
+    <div className="cw-connect-prompt">
+      {/* Lock icon — matches landing page boarding-pass aesthetic */}
+      <div className="cw-connect-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="rgba(175,80,255,0.85)" strokeWidth="2"
+          strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      </div>
+
+      <p style={{ fontSize: '1rem', color: 'rgba(247,249,250,0.68)' }}>
         Connect your wallet to access {sectionName}
       </p>
-      <button
-        onClick={onConnectClick}
-        style={{
-          padding: '8px 20px',
-          fontSize: '0.875rem',
-          border: '1px solid #667eea',
-          borderRadius: '8px',
-          background: '#667eea22',
-          color: '#667eea',
-          cursor: 'pointer',
-          fontWeight: 600,
-        }}
-      >
-        Connect Wallet
+
+      <button className="cw-btn cw-btn-filled" onClick={onConnectClick}>
+        CONNECT WALLET →
       </button>
     </div>
   );

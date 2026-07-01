@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Header } from './components/Header';
 import { ConnectPrompt } from './components/ConnectPrompt';
 import { ProofWorkspace } from './components/ProofWorkspace';
 import { CredentialManager } from './components/CredentialManager';
 import { GatedActionSection } from './components/GatedActionSection';
 import { useStellarWallet } from './hooks/useStellarWallet';
+import { truncateAddress } from './utils/formatAddress';
 
 type ActiveTab = 'proof' | 'credentials' | 'gated';
 
@@ -13,127 +13,109 @@ function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('proof');
 
   const tabs: { id: ActiveTab; label: string }[] = [
-    { id: 'proof', label: 'Create Proof' },
-    { id: 'credentials', label: 'My Credentials' },
-    { id: 'gated', label: 'Gated Action' },
+    { id: 'proof',       label: 'CREATE PROOF' },
+    { id: 'credentials', label: 'MY CREDENTIALS' },
+    { id: 'gated',       label: 'GATED ACTION' },
   ];
 
   return (
     <div className="App">
-      <Header
-        walletAddress={wallet.address}
-        onConnectClick={wallet.connect}
-        onDisconnectClick={wallet.disconnect}
-      />
 
-      {/* Tab navigation */}
-      <nav
-        aria-label="Main tabs"
-        style={{
-          display: 'flex',
-          gap: '0',
-          borderBottom: '1px solid #2d3748',
-          backgroundColor: '#0f0f1a',
-          padding: '0 1.5rem',
-        }}
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              if (!wallet.address) {
-                wallet.connect();
-              } else {
-                setActiveTab(tab.id);
-              }
-            }}
-            style={{
-              padding: '0.75rem 1.25rem',
-              fontSize: '0.875rem',
-              fontWeight: activeTab === tab.id ? 600 : 400,
-              border: 'none',
-              borderBottom:
-                activeTab === tab.id
-                  ? '2px solid #667eea'
-                  : '2px solid transparent',
-              background: 'transparent',
-              color: activeTab === tab.id ? '#667eea' : '#718096',
-              cursor: 'pointer',
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+      {/* ── Nav bar — matches landing page pill style ── */}
+      <header className="app-nav" aria-label="App navigation">
+        {/* Wordmark */}
+        <a className="app-nav-wordmark" href="/" aria-label="Back to home">
+          <span className="app-nav-mark" aria-hidden="true" />
+          CLOAKWORK
+        </a>
 
-      {/* Main content — protected behind wallet connection */}
-      <main style={{ padding: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
-        {wallet.error && (
-          <div
-            role="alert"
-            style={{
-              padding: '0.75rem 1rem',
-              marginBottom: '1rem',
-              borderRadius: '6px',
-              backgroundColor: '#fc818133',
-              border: '1px solid #fc8181',
-              color: '#fc8181',
-              fontSize: '0.875rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-            }}
-          >
-            <span>{wallet.error}</span>
+        {/* Tab pills */}
+        <nav className="app-nav-tabs" aria-label="App sections">
+          {tabs.map((tab) => (
             <button
-              onClick={wallet.connect}
-              style={{
-                marginLeft: 'auto',
-                fontWeight: 600,
-                cursor: 'pointer',
-                background: 'none',
-                border: 'none',
-                color: '#fc8181',
-                textDecoration: 'underline',
-                fontSize: '0.875rem',
+              key={tab.id}
+              className={`app-nav-tab${activeTab === tab.id ? ' active' : ''}`}
+              onClick={() => {
+                if (!wallet.address) {
+                  wallet.connect();
+                } else {
+                  setActiveTab(tab.id);
+                }
               }}
+              aria-current={activeTab === tab.id ? 'page' : undefined}
             >
-              Retry
+              {tab.label}
             </button>
+          ))}
+        </nav>
+
+        {/* Wallet actions */}
+        <div className="app-nav-actions">
+          {wallet.address ? (
+            <>
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '12px',
+                color: 'rgba(247,249,250,0.72)',
+                letterSpacing: '0.04em',
+              }}>
+                {truncateAddress(wallet.address)}
+              </span>
+              <button
+                className="cw-btn"
+                onClick={wallet.disconnect}
+                style={{ minHeight: '38px', fontSize: '11px' }}
+              >
+                DISCONNECT
+              </button>
+            </>
+          ) : (
+            <button className="cw-btn cw-btn-filled" onClick={wallet.connect}>
+              CONNECT WALLET
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* ── Main content ── */}
+      <main className="app-main">
+
+        {/* Wallet error banner */}
+        {wallet.error && (
+          <div className="cw-alert" role="alert">
+            <span>{wallet.error}</span>
+            <button onClick={wallet.connect}>Retry</button>
           </div>
         )}
 
+        {/* Sections */}
         {!wallet.address ? (
-          // Show connect prompts for each section — clicking opens wallet modal
           <>
             {activeTab === 'proof' && (
-              <ConnectPrompt
-                sectionName="proof generation"
-                onConnectClick={wallet.connect}
-              />
+              <ConnectPrompt sectionName="proof generation" onConnectClick={wallet.connect} />
             )}
             {activeTab === 'credentials' && (
-              <ConnectPrompt
-                sectionName="credential management"
-                onConnectClick={wallet.connect}
-              />
+              <ConnectPrompt sectionName="credential management" onConnectClick={wallet.connect} />
             )}
             {activeTab === 'gated' && (
-              <ConnectPrompt
-                sectionName="gated action demo"
-                onConnectClick={wallet.connect}
-              />
+              <ConnectPrompt sectionName="gated action demo" onConnectClick={wallet.connect} />
             )}
           </>
         ) : (
-          // Wallet connected — show the active section
           <>
-            {activeTab === 'proof' && <ProofWorkspace wallet={wallet} />}
+            {activeTab === 'proof'       && <ProofWorkspace wallet={wallet} />}
             {activeTab === 'credentials' && <CredentialManager walletAddress={wallet.address ?? ''} signTransaction={wallet.signTransaction} />}
-            {activeTab === 'gated' && <GatedActionSection walletAddress={wallet.address ?? ''} signTransaction={wallet.signTransaction} />}
+            {activeTab === 'gated'       && <GatedActionSection walletAddress={wallet.address ?? ''} signTransaction={wallet.signTransaction} />}
           </>
         )}
       </main>
+
+      {/* ── Coordinate footer bar (matches landing page) ── */}
+      <footer className="cw-coordinate-bar" aria-label="Build info">
+        <span>+ Cloakwork Real-World ZK / App</span>
+        <span>STELLAR TESTNET · DNSSEC · GROTH16 · BN254</span>
+      </footer>
+
     </div>
   );
 }

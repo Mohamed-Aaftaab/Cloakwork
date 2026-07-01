@@ -1,30 +1,22 @@
 import React from 'react';
 import { config } from '../config';
 
-const networkColors: Record<string, string> = {
-  testnet: '#d69e2e',
-  futurenet: '#9f7aea',
-  mainnet: '#48bb78',
-};
-
 export function NetworkBadge() {
   const network = config.network;
-  const color = networkColors[network] ?? '#718096';
   return (
-    <span
-      style={{
-        display: 'inline-block',
-        padding: '2px 8px',
-        borderRadius: '9999px',
-        fontSize: '0.7rem',
-        fontWeight: 600,
-        letterSpacing: '0.05em',
-        textTransform: 'uppercase',
-        backgroundColor: `${color}22`,
-        color,
-        border: `1px solid ${color}44`,
-      }}
-    >
+    <span style={{
+      display: 'inline-block',
+      padding: '3px 10px',
+      borderRadius: '9999px',
+      fontSize: '10px',
+      fontWeight: 700,
+      fontFamily: 'var(--font-mono)',
+      letterSpacing: '0.12em',
+      textTransform: 'uppercase' as const,
+      backgroundColor: 'rgba(175,80,255,0.12)',
+      color: 'rgba(225,189,255,0.9)',
+      border: '1px solid rgba(175,80,255,0.28)',
+    }}>
       {network}
     </span>
   );

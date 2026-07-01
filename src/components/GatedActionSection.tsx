@@ -135,7 +135,7 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
   return (
     <div style={{ padding: '1.5rem 0' }}>
       {loading && (
-        <p style={{ color: '#718096', fontSize: '0.875rem', marginBottom: '1rem' }}>
+        <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.875rem', marginBottom: '1rem' }}>
           Loading credentials from registry…
         </p>
       )}
@@ -147,8 +147,8 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
       )}
 
       {!loading && credentials.length === 0 && !loadError && (
-        <div style={{ padding: '1rem', background: '#1a202c', borderRadius: '8px', border: '1px solid #2d3748', marginBottom: '1rem' }}>
-          <p style={{ color: '#718096', fontSize: '0.875rem', margin: 0 }}>
+        <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', border: '1px solid #2d3748', marginBottom: '1rem' }}>
+          <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.875rem', margin: 0 }}>
             No credentials found for this wallet. Complete the proof flow in the "Create Proof" tab
             to issue a DomainCredential, then return here.
           </p>
@@ -164,8 +164,8 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
       )}
 
       {!loading && credentials.length > 0 && activeCount === 0 && (
-        <div style={{ padding: '1rem', background: '#1a202c', borderRadius: '8px', border: '1px solid #2d3748' }}>
-          <p style={{ color: '#718096', fontSize: '0.875rem', margin: 0 }}>
+        <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', border: '1px solid #2d3748' }}>
+          <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.875rem', margin: 0 }}>
             All credentials are revoked or expired. Issue a new credential to use the gated action.
           </p>
         </div>

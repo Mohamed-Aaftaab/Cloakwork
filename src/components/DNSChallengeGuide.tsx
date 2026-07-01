@@ -39,7 +39,7 @@ export function DNSChallengeGuide({ proof, walletAddress }: Props) {
 
   return (
     <div style={{ marginBottom: '1.5rem' }}>
-      <h3 style={{ color: '#e2e8f0', fontSize: '1rem', marginBottom: '0.75rem' }}>
+      <h3 style={{ color: '#f7f9fa', fontSize: '1rem', marginBottom: '0.75rem' }}>
         Step 1 — Generate DNS Challenge
       </h3>
 
@@ -58,21 +58,21 @@ export function DNSChallengeGuide({ proof, walletAddress }: Props) {
               padding: '0.5rem 0.75rem',
               borderRadius: '6px',
               border: domainError ? '1px solid #fc8181' : '1px solid #4a5568',
-              background: '#1a202c',
-              color: '#e2e8f0',
+              background: 'rgba(255,255,255,0.06)',
+              color: '#f7f9fa',
               fontSize: '0.9rem',
             }}
           />
           {domainError && <span style={{ color: '#fc8181', fontSize: '0.8rem' }}>{domainError}</span>}
-          <p style={{ margin: 0, color: '#718096', fontSize: '0.78rem' }}>
+          <p style={{ margin: 0, color: 'rgba(247,249,250,0.58)', fontSize: '0.78rem' }}>
             Your domain name is only used locally to compute commitments — it never touches the blockchain.
           </p>
           <button
             type="submit"
             style={{
               padding: '8px 18px', fontSize: '0.875rem',
-              border: '1px solid #667eea', borderRadius: '6px',
-              background: '#667eea22', color: '#667eea',
+              border: '1px solid #af50ff', borderRadius: '6px',
+              background: '#af50ff22', color: '#af50ff',
               cursor: 'pointer', fontWeight: 600, alignSelf: 'flex-start',
             }}
           >
@@ -87,9 +87,9 @@ export function DNSChallengeGuide({ proof, walletAddress }: Props) {
             ✓ Challenge generated. Add this TXT record to your DNS provider:
           </p>
 
-          <div style={{ background: '#1a202c', border: '1px solid #2d3748', borderRadius: '8px', padding: '0.75rem' }}>
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid #2d3748', borderRadius: '8px', padding: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ color: '#718096', fontSize: '0.75rem' }}>Record Name</span>
+              <span style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.75rem' }}>Record Name</span>
               <button onClick={() => copyToClipboard(proof.txtRecordName!)}
                 style={{ fontSize: '0.7rem', padding: '2px 8px', border: '1px solid #4a5568', borderRadius: '4px', background: 'transparent', color: '#a0aec0', cursor: 'pointer' }}>
                 Copy
@@ -100,9 +100,9 @@ export function DNSChallengeGuide({ proof, walletAddress }: Props) {
             </code>
           </div>
 
-          <div style={{ background: '#1a202c', border: '1px solid #2d3748', borderRadius: '8px', padding: '0.75rem' }}>
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid #2d3748', borderRadius: '8px', padding: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ color: '#718096', fontSize: '0.75rem' }}>Record Value</span>
+              <span style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.75rem' }}>Record Value</span>
               <button onClick={() => copyToClipboard(proof.txtRecordValue!)}
                 style={{ fontSize: '0.7rem', padding: '2px 8px', border: '1px solid #4a5568', borderRadius: '4px', background: 'transparent', color: '#a0aec0', cursor: 'pointer' }}>
                 Copy
@@ -115,7 +115,7 @@ export function DNSChallengeGuide({ proof, walletAddress }: Props) {
 
           <button
             onClick={proof.reset}
-            style={{ fontSize: '0.75rem', padding: '4px 10px', border: '1px solid #4a5568', borderRadius: '4px', background: 'transparent', color: '#718096', cursor: 'pointer', alignSelf: 'flex-start' }}
+            style={{ fontSize: '0.75rem', padding: '4px 10px', border: '1px solid #4a5568', borderRadius: '4px', background: 'transparent', color: 'rgba(247,249,250,0.58)', cursor: 'pointer', alignSelf: 'flex-start' }}
           >
             Start over
           </button>
