@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Cloakwork proves DNS domain ownership to Stellar smart contracts with zero-knowledge proofs without exposing your domain." />
+    <title>Cloakwork | Prove What's True. Reveal Nothing.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@1,400;1,500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-nav" data-modern-navbar aria-label="Global navigation">
+      <a class="wordmark" href="#top" aria-label="Cloakwork home">
+        <span class="mark"></span>
+        CLOAKWORK
+      </a>
+      <nav class="nav-links" id="primary-nav" aria-label="Primary navigation">
+        <a class="active" href="#how">HOW IT WORKS</a>
+        <a href="#architecture">ARCHITECTURE</a>
+        <a href="#sdk">SDK</a>
+        <a href="#try">TRY IT</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="ghost-button nav-github" href="https://github.com/Mohamed-Aaftaab/Cloakwork" target="_blank" rel="noreferrer">GITHUB</a>
+        <a class="filled-button" href="/app">LAUNCH APP</a>
+        <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav" data-nav-toggle>
+          <span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-bg" aria-hidden="true">
+          <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="assets/hero-orbit.png">
+            <source src="assets/clouds-background.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="hero-inner">
+          <div class="hero-copy">
+            <p class="route-label">DNSSEC -&gt; ZK PROOF -&gt; STELLAR</p>
+            <h1 id="hero-title">
+              <span class="serif-accent">Prove Domain Ownership.</span>
+              <span class="display-line">Reveal Nothing.</span>
+            </h1>
+            <p class="hero-subtitle">
+              Cloakwork anchors real-world DNS identity to Stellar smart contracts using zero-knowledge proofs that never expose your domain.
+            </p>
+            <div class="hero-ctas">
+              <a class="ghost-button large" href="/app">LAUNCH APP -&gt;</a>
+              <a class="ghost-button large secondary" href="https://github.com/Mohamed-Aaftaab/Cloakwork" target="_blank" rel="noreferrer">GITHUB</a>
+            </div>
+            <div class="trust-badges">
+              <span>Live on Stellar Testnet</span>
+              <span>Groth16 BN254</span>
+              <span>DNSSEC-Verified</span>
+            </div>
+          </div>
+
+          <aside class="boarding-pass proof-pass" aria-label="Cloakwork proof pass">
+            <div class="pass-header">
+              <span>Proof Pass</span>
+              <span>CW-ZK01</span>
+            </div>
+            <div class="pass-route">
+              <div>
+                <span class="mono-label">FROM</span>
+                <strong>DNS</strong>
+                <small>Real domain control</small>
+              </div>
+              <div class="route-arrow" aria-hidden="true">-&gt;</div>
+              <div>
+                <span class="mono-label">TO</span>
+                <strong>ZK</strong>
+                <small>Private credential</small>
+              </div>
+            </div>
+            <div class="pass-grid">
+              <div>
+                <span class="mono-label">CHAIN</span>
+                <strong>Stellar</strong>
+              </div>
+              <div>
+                <span class="mono-label">PROOF</span>
+                <strong>Groth16</strong>
+              </div>
+              <div>
+                <span class="mono-label">DOMAIN</span>
+                <strong>Hidden</strong>
+              </div>
+            </div>
+            <pre class="pass-code"><code>require_valid_credential(
+  &amp;env, registry, owner, nullifier
+);</code></pre>
+            <div class="pass-actions">
+              <a class="provider-button" href="/app"><span>C</span> Launch Cloakwork App</a>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="problem" class="feature-section" aria-labelledby="problem-title">
+        <div class="section-kicker">THE IDENTITY PROBLEM</div>
+        <h2 id="problem-title" class="section-title problem-title"><span>Your domain is the key.</span><span>Only the proof leaves your browser.</span></h2>
+        <div class="feature-list">
+          <a class="feature-row" href="#architecture"><span>DNS PROVES REAL IDENTITY</span><b aria-hidden="true">-&gt;</b></a>
+          <a class="feature-row" href="#privacy"><span>ZK HIDES THE DOMAIN</span><b aria-hidden="true">-&gt;</b></a>
+          <a class="feature-row" href="#sdk"><span>ONE LINE OF RUST</span><b aria-hidden="true">-&gt;</b></a>
+        </div>
+      </section>
+
+      <section id="how" class="comparison-section" aria-labelledby="how-title">
+        <div class="comparison-heading">
+          <div>
+            <div class="section-kicker">FOUR STEPS. ZERO EXPOSURE.</div>
+            <h2 id="how-title" class="section-title">A private route from DNS to Soroban.</h2>
+          </div>
+          <div class="comparison-actions">
+            <div class="carousel-controls" aria-label="Proof step carousel controls">
+              <button class="ghost-icon-button" type="button" data-carousel-prev aria-label="Previous proof step">&lt;</button>
+              <button class="ghost-icon-button" type="button" data-carousel-next aria-label="Next proof step">&gt;</button>
+            </div>
+            <a class="ghost-button" href="/app">LAUNCH APP -&gt;</a>
+          </div>
+        </div>
+        <div class="comparison-grid skiper-coverflow" data-skiper49>
+          <article class="comparison-card teal" data-slide>
+            <span class="card-number">01</span>
+            <p>POSEIDON COMMITMENT</p>
+            <a href="#how">Generate Challenge -&gt;</a>
+            <small>Your browser creates a challenge. Nonce and secret stay local.</small>
+          </article>
+          <article class="comparison-card violet" data-slide>
+            <span class="card-number">02</span>
+            <p>DNSSEC-SIGNED TXT</p>
+            <a href="#how">Publish DNS Record -&gt;</a>
+            <small>Add a TXT record. The raw domain never touches the chain.</small>
+          </article>
+          <article class="comparison-card rose" data-slide>
+            <span class="card-number">03</span>
+            <p>BN254 GROTH16</p>
+            <a href="#how">Generate ZK Proof -&gt;</a>
+            <small>Circom runs locally and exports only the proof.</small>
+          </article>
+          <article class="comparison-card ember" data-slide>
+            <span class="card-number">04</span>
+            <p>SOROBAN REGISTRY</p>
+            <a href="#how">Submit to Stellar -&gt;</a>
+            <small>The registry verifies and issues a reusable credential.</small>
+          </article>
+        </div>
+        <div class="carousel-dots" aria-label="Proof step pagination">
+          <button type="button" data-carousel-dot="0" aria-label="Show step 1"></button>
+          <button type="button" data-carousel-dot="1" aria-label="Show step 2"></button>
+          <button type="button" data-carousel-dot="2" aria-label="Show step 3"></button>
+          <button type="button" data-carousel-dot="3" aria-label="Show step 4"></button>
+        </div>
+      </section>
+
+      <section id="architecture" class="info-section" aria-labelledby="architecture-title">
+        <div class="section-kicker">BUILT FOR STELLAR</div>
+        <h2 id="architecture-title" class="section-title">Browser -&gt; Stellar Testnet -&gt; Any dApp.</h2>
+        <div class="architecture-strip">
+          <article>
+            <span>01</span>
+            <h3>Your Browser</h3>
+            <p>ZK proof generation, DNSSEC checks, and private keys stay local.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Stellar Testnet</h3>
+            <p>Verifier contract, registry contract, and gated action demo run on Soroban.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Any dApp</h3>
+            <p>One SDK call gates payments, voting, mints, admin actions, or access.</p>
+          </article>
+        </div>
+          <div class="address-panel">
+          <div><span>VERIFIER</span><code>CAYOV2FM3LEAKY7UKYGOLK5JTHKXJ4DT2RWTKDPP2LBS5VMLKIQFWNI5</code><a href="https://stellar.expert/explorer/testnet/contract/CAYOV2FM3LEAKY7UKYGOLK5JTHKXJ4DT2RWTKDPP2LBS5VMLKIQFWNI5" target="_blank" rel="noreferrer">Explorer</a></div>
+          <div><span>REGISTRY</span><code>CATC4JJXRAV3SSJACS6IPSOUMIFC7EEJNDP47QSNNIZUTKEDM2VCWSV5</code><a href="https://stellar.expert/explorer/testnet/contract/CATC4JJXRAV3SSJACS6IPSOUMIFC7EEJNDP47QSNNIZUTKEDM2VCWSV5" target="_blank" rel="noreferrer">Explorer</a></div>
+          <div><span>GATED ACTION</span><code>CAAUNLRCKYQGC3N3EL2MCXVJU2QHBAPRTMS2H7ZHAN5WJ4HA2UX4E23G</code><a href="https://stellar.expert/explorer/testnet/contract/CAAUNLRCKYQGC3N3EL2MCXVJU2QHBAPRTMS2H7ZHAN5WJ4HA2UX4E23G" target="_blank" rel="noreferrer">Explorer</a></div>
+        </div>
+      </section>
+
+      <section id="sdk" class="info-section sdk-panel" aria-labelledby="sdk-title">
+        <div class="comparison-heading">
+          <div>
+            <div class="section-kicker">DEVELOPER SDK</div>
+            <h2 id="sdk-title" class="section-title">Gate any function in one line.</h2>
+          </div>
+          <a class="ghost-button" href="https://github.com/Mohamed-Aaftaab/Cloakwork" target="_blank" rel="noreferrer">VIEW SDK -&gt;</a>
+        </div>
+        <pre class="code-block"><code>// Add to any Soroban contract - no ZK knowledge needed
+CloakworkClient::require_valid_credential(
+    &amp;env,
+    registry_address,
+    owner,
+    nullifier,
+);
+// Panics if credential is invalid, expired, or revoked</code></pre>
+        <div class="method-grid">
+          <article><h3>require_valid_credential</h3><p>Panics if invalid, expired, or revoked.</p></article>
+          <article><h3>get_credential</h3><p>Returns Option&lt;DomainCredential&gt;.</p></article>
+          <article><h3>is_credential_active</h3><p>Returns bool for fast access checks.</p></article>
+        </div>
+      </section>
+
+      <section id="try" class="info-section try-panel" aria-labelledby="try-title">
+        <div class="try-copy">
+          <div class="section-kicker">TRY IT LIVE</div>
+          <h2 id="try-title" class="section-title">No setup required.</h2>
+          <p>Connect Freighter wallet on Stellar testnet to get started.</p>
+          <a class="ghost-button large" href="/app">LAUNCH APP -&gt;</a>
+        </div>
+        <div class="terminal-preview" aria-hidden="true">
+          <span>connect_freighter()</span>
+          <span>generate_challenge()</span>
+          <span>verify_dnssec()</span>
+          <span>submit_proof_to_stellar()</span>
+        </div>
+      </section>
+
+      <section id="privacy" class="info-section privacy-panel" aria-labelledby="privacy-title">
+        <div class="section-kicker">PRIVACY GUARANTEE</div>
+        <h2 id="privacy-title" class="section-title">What goes on-chain vs. what stays private.</h2>
+        <div class="privacy-table">
+          <div class="table-head"><strong>On-Chain (Public)</strong><strong>Never Leaves Your Browser</strong></div>
+          <div><span>Poseidon commitment hash</span><span>Domain name string</span></div>
+          <div><span>Nullifier hash</span><span>DNS TXT record value</span></div>
+          <div><span>RRSIG timestamps</span><span>DNSSEC raw bytes</span></div>
+          <div><span>Groth16 proof (256 bytes)</span><span>Nonce (32 random bytes)</span></div>
+          <div><span>Verifier version</span><span>Secret (32 random bytes)</span></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <a class="wordmark" href="#top"><span class="mark"></span>CLOAKWORK</a>
+        <p>Prove What's True. Reveal Nothing.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/Mohamed-Aaftaab/Cloakwork" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://stellar.expert/explorer/testnet/contract/CAYOV2FM3LEAKY7UKYGOLK5JTHKXJ4DT2RWTKDPP2LBS5VMLKIQFWNI5" target="_blank" rel="noreferrer">Verifier</a>
+        <a href="https://stellar.expert/explorer/testnet/contract/CATC4JJXRAV3SSJACS6IPSOUMIFC7EEJNDP47QSNNIZUTKEDM2VCWSV5" target="_blank" rel="noreferrer">Registry</a>
+        <a href="https://github.com/Mohamed-Aaftaab/Cloakwork#readme" target="_blank" rel="noreferrer">Docs</a>
+      </div>
+      <div class="stack-badges"><span>Soroban</span><span>Circom</span><span>snarkjs</span><span>BN254</span></div>
+      <a class="ghost-button large" href="/app">LAUNCH APP -&gt;</a>
+    </footer>
+
+    <footer class="coordinate-footer" aria-label="Build status">
+      <span>+ Cloakwork Real-World ZK</span>
+      <span>STELLAR TESTNET / DNSSEC / GROTH16 / BN254</span>
+    </footer>
+    <script>
+      (() => {
+        const carousel = document.querySelector('[data-skiper49]');
+        if (!carousel) return;
+
+        const cards = Array.from(carousel.querySelectorAll('[data-slide]'));
+        const prev = document.querySelector('[data-carousel-prev]');
+        const next = document.querySelector('[data-carousel-next]');
+        const dots = Array.from(document.querySelectorAll('[data-carousel-dot]'));
+        let active = 0;
+        let timer;
+
+        const shortestOffset = (index) => {
+          const length = cards.length;
+          let offset = index - active;
+          if (offset > length / 2) offset -= length;
+          if (offset < -length / 2) offset += length;
+          return offset;
+        };
+
+        const render = () => {
+          cards.forEach((card, index) => {
+            const offset = shortestOffset(index);
+            const distance = Math.abs(offset);
+            card.style.setProperty('--offset', offset);
+            card.style.setProperty('--scale', distance === 0 ? '1' : distance === 1 ? '0.88' : '0.74');
+            card.style.setProperty('--opacity', distance > 2 ? '0' : '1');
+            card.style.setProperty('--z', String(40 - distance));
+            card.dataset.active = String(index === active);
+            card.setAttribute('aria-hidden', String(distance > 1));
+          });
+          dots.forEach((dot, index) => dot.dataset.active = String(index === active));
+        };
+
+        const goTo = (index) => {
+          active = (index + cards.length) % cards.length;
+          render();
+        };
+
+        const start = () => {
+          window.clearInterval(timer);
+          timer = window.setInterval(() => goTo(active + 1), 4200);
+        };
+
+        prev?.addEventListener('click', () => { goTo(active - 1); start(); });
+        next?.addEventListener('click', () => { goTo(active + 1); start(); });
+        dots.forEach((dot, index) => dot.addEventListener('click', () => { goTo(index); start(); }));
+        cards.forEach((card, index) => card.addEventListener('click', () => { goTo(index); start(); }));
+        carousel.addEventListener('mouseenter', () => window.clearInterval(timer));
+        carousel.addEventListener('mouseleave', start);
+        carousel.addEventListener('focusin', () => window.clearInterval(timer));
+        carousel.addEventListener('focusout', start);
+
+        render();
+        start();
+      })();
+
+      (() => {
+        const navbar = document.querySelector('[data-modern-navbar]');
+        const toggle = document.querySelector('[data-nav-toggle]');
+        const links = document.querySelectorAll('.nav-links a');
+        if (!navbar || !toggle) return;
+
+        const closeMenu = () => {
+          navbar.dataset.open = 'false';
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-label', 'Open menu');
+        };
+
+        toggle.addEventListener('click', () => {
+          const isOpen = navbar.dataset.open === 'true';
+          navbar.dataset.open = String(!isOpen);
+          toggle.setAttribute('aria-expanded', String(!isOpen));
+          toggle.setAttribute('aria-label', isOpen ? 'Open menu' : 'Close menu');
+        });
+
+        links.forEach((link) => link.addEventListener('click', closeMenu));
+        window.addEventListener('resize', () => {
+          if (window.innerWidth > 1020) closeMenu();
+        });
+      })();    </script>  </body>
+</html>
