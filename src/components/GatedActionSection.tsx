@@ -95,7 +95,12 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
 
           const now = Math.floor(Date.now() / 1000);
           let status: 'Active' | 'Revoked' | 'Expired' = 'Active';
-          if (native.status && typeof native.status === 'object' && 'Revoked' in native.status) {
+          const rawStatus = native.status;
+          const isRevoked =
+            (typeof rawStatus === 'object' && rawStatus !== null && 'Revoked' in rawStatus) ||
+            rawStatus === 'Revoked' ||
+            String(rawStatus) === 'Revoked';
+          if (isRevoked) {
             status = 'Revoked';
           } else if (Number(native.expires_at ?? 0) < now) {
             status = 'Expired';

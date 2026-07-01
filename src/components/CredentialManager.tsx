@@ -69,7 +69,13 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
           const commitmentHex = native.commitment ? Buffer.from(native.commitment as Uint8Array).toString('hex') : '';
           const now = Math.floor(Date.now() / 1000);
           let status: 'Active' | 'Revoked' | 'Expired' = 'Active';
-          if (native.status && typeof native.status === 'object' && 'Revoked' in native.status) status = 'Revoked';
+          // Soroban enums serialize to {VariantName: void} or as a string "VariantName"
+          const rawStatus = native.status;
+          const isRevoked =
+            (typeof rawStatus === 'object' && rawStatus !== null && 'Revoked' in rawStatus) ||
+            rawStatus === 'Revoked' ||
+            String(rawStatus) === 'Revoked';
+          if (isRevoked) status = 'Revoked';
           else if (Number(native.expires_at ?? 0) < now) status = 'Expired';
 
           loaded.push({
