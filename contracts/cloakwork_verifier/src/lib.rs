@@ -113,6 +113,10 @@ impl CloakworkVerifier {
             .persistent()
             .extend_ttl(&key, TTL_THRESHOLD, TTL_TARGET);
 
+        // Refresh instance storage TTL on every admin operation to keep the
+        // Initialized guard alive even if the contract is dormant between key registrations.
+        env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_TARGET);
+
         Ok(())
     }
 

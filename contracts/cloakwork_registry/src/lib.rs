@@ -720,6 +720,88 @@ mod tests {
     // ── renew tests ───────────────────────────────────────────────────────────
 
     #[test]
+    fn test_verify_and_issue_expiry_capped_to_30_days_when_not_after_is_far() {
+        // When not_after is further than 30 days from issuance, expires_at must be capped.
+        let env = make_env();
+        let (_id, client, _admin, _verifier) = deploy_and_init(&env);
+        env.ledger().set(LedgerInfo {
+            timestamp: 1_000_000,
+            protocol_version: 26,
+            sequence_number: 100,
+            network_id: Default::default(),
+            base_reserve: 10,
+            min_temp_entry_ttl: 16,
+            min_persistent_entry_ttl: 4096,
+            max_entry_ttl: 6_312_000,
+        });
+        let owner = Address::generate(&env);
+        let zeros: BytesN<32> = BytesN::from_array(&env, &[0u8; 32]);
+        // not_after is 90 days from now — should be capped to 30 days
+        let inputs = PublicInputs {
+            domain_commitment: zeros.clone(),
+            record_commitment: zeros.clone(),
+            owner_commitment: zeros.clone(),
+            nullifier: zeros.clone(),
+            dnskey_root_hash: zeros.clone(),
+            not_before: 999_990,
+            not_after: 1_000_000 + 90 * 24 * 3600, // now + 90 days
+            verifier_version: 1,
+        };
+        let proof = Bytes::from_array(&env, &[0u8; 256]);
+        let result = client.try_verify_and_issue(&owner, &inputs, &proof);
+        assert!(result.is_ok(), "issuance must succeed");
+        let cred = result.unwrap().unwrap();
+        // expires_at must be capped to issued_at + MAX_CREDENTIAL_TTL_SECS (30 days)
+        let expected = 1_000_000u64 + 2_592_000;
+        assert_eq!(
+            cred.expires_at, expected,
+            "expires_at must be capped to now + 30 days, got {}", cred.expires_at
+        );
+    }
+
+    #[test]
+    fn test_verify_and_issue_expiry_uses_not_after_when_within_30_days() {
+        // When not_after is within 30 days, expires_at must equal not_after exactly.
+        let env = make_env();
+        let (_id, client, _admin, _verifier) = deploy_and_init(&env);
+        env.ledger().set(LedgerInfo {
+            timestamp: 1_000_000,
+            protocol_version: 26,
+            sequence_number: 100,
+            network_id: Default::default(),
+            base_reserve: 10,
+            min_temp_entry_ttl: 16,
+            min_persistent_entry_ttl: 4096,
+            max_entry_ttl: 6_312_000,
+        });
+        let owner = Address::generate(&env);
+        let zeros: BytesN<32> = BytesN::from_array(&env, &[0u8; 32]);
+        // not_after is 7 days from now — should be used as-is
+        let not_after_7d = 1_000_000u64 + 7 * 24 * 3600;
+        let mut null_arr = [0u8; 32];
+        null_arr[0] = 1; // distinct nullifier to avoid collision with other tests
+        let inputs = PublicInputs {
+            domain_commitment: zeros.clone(),
+            record_commitment: zeros.clone(),
+            owner_commitment: zeros.clone(),
+            nullifier: BytesN::from_array(&env, &null_arr),
+            dnskey_root_hash: zeros.clone(),
+            not_before: 999_990,
+            not_after: not_after_7d,
+            verifier_version: 1,
+        };
+        let proof = Bytes::from_array(&env, &[0u8; 256]);
+        let result = client.try_verify_and_issue(&owner, &inputs, &proof);
+        assert!(result.is_ok(), "issuance must succeed");
+        let cred = result.unwrap().unwrap();
+        // expires_at must equal not_after exactly (not capped)
+        assert_eq!(
+            cred.expires_at, not_after_7d,
+            "expires_at must equal not_after when within 30-day window, got {}", cred.expires_at
+        );
+    }
+
+    #[test]
     fn test_renew_revoked_credential_fails() {
         let env = make_env();
         let (_id, client, _admin, _verifier) = deploy_and_init(&env);
