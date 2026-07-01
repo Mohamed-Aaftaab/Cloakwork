@@ -80,6 +80,10 @@ impl CloakworkRegistry {
             .extend_ttl(&DataKey::VerifierContract, TTL_THRESHOLD, TTL_TARGET);
 
         env.storage().instance().set(&DataKey::Initialized, &true);
+        // Extend the instance storage TTL so the Initialized guard itself does not expire.
+        // Without this, a dormant contract could have its instance storage archived and
+        // the initialization guard lost, allowing re-initialization by an attacker.
+        env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_TARGET);
         Ok(())
     }
 
@@ -229,12 +233,20 @@ impl CloakworkRegistry {
     /// Get all nullifiers associated with an owner address.
     ///
     /// Returns an empty `Vec` if the owner has no credentials.
+    /// Extends storage TTL on every successful read to prevent the owner index from archiving.
     pub fn get_credentials_by_owner(env: Env, owner: Address) -> Vec<BytesN<32>> {
         let key = DataKey::OwnerCredentials(owner);
-        env.storage()
+        let result = env.storage()
             .persistent()
             .get(&key)
-            .unwrap_or_else(|| Vec::new(&env))
+            .unwrap_or_else(|| Vec::new(&env));
+        // Only extend TTL if the key actually exists (non-empty list)
+        if !result.is_empty() {
+            env.storage()
+                .persistent()
+                .extend_ttl(&key, TTL_THRESHOLD, TTL_TARGET);
+        }
+        result
     }
 
     /// Revoke a credential. Callable by the credential owner or the admin.
@@ -310,6 +322,8 @@ impl CloakworkRegistry {
 
         let now = env.ledger().timestamp();
         if new_expires_at <= now {
+            // Reusing InvalidPublicInputs — semantically: the provided expiry value is invalid
+            // (it is in the past or equal to the current ledger timestamp).
             return Err(RegistryError::InvalidPublicInputs);
         }
 
@@ -767,6 +781,40 @@ mod tests {
     }
 
     // ── retrieval tests ───────────────────────────────────────────────────────
+
+    #[test]
+    fn test_renew_caps_at_30_days() {
+        let env = make_env();
+        let (_id, client, _admin, _verifier) = deploy_and_init(&env);
+        env.ledger().set(LedgerInfo {
+            timestamp: 1_000_000,
+            protocol_version: 26,
+            sequence_number: 100,
+            network_id: Default::default(),
+            base_reserve: 10,
+            min_temp_entry_ttl: 16,
+            min_persistent_entry_ttl: 4096,
+            max_entry_ttl: 6_312_000,
+        });
+        let owner = Address::generate(&env);
+        let inputs = dummy_inputs(&env, 1_000_000);
+        let proof = Bytes::from_array(&env, &[0u8; 256]);
+        let nullifier = inputs.nullifier.clone();
+
+        client.verify_and_issue(&owner, &inputs, &proof);
+
+        // Request 90 days — should be capped to MAX_CREDENTIAL_TTL_SECS (30 days) from now.
+        let far_future = 1_000_000u64 + 90 * 24 * 3600; // now + 90 days
+        let result = client.try_renew(&nullifier, &far_future);
+        assert!(result.is_ok(), "renew with far-future expiry must succeed (with cap)");
+
+        let cred = client.get_credential(&nullifier).expect("credential must exist");
+        let expected_max = 1_000_000u64 + 2_592_000; // now + 30 days
+        assert_eq!(
+            cred.expires_at, expected_max,
+            "expires_at must be capped to now + 30 days, got {}", cred.expires_at
+        );
+    }
 
     #[test]
     fn test_get_credential_and_by_owner_after_issuance() {

@@ -19,7 +19,7 @@
 //! fn my_gated_function(env: Env, owner: Address, nullifier: BytesN<32>, registry: Address) {
 //!     // Panics with auth error if credential is invalid, expired, or revoked.
 //!     CloakworkClient::require_valid_credential(&env, registry, owner, nullifier);
-//!     // Protected logic follows — domain identity verified, zero knowledge revealed.
+//!     // Protected logic follows — domain identity verified, zero knowledge preserved.
 //! }
 //! ```
 

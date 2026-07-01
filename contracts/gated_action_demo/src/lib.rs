@@ -67,6 +67,10 @@ impl GatedActionDemo {
             .persistent()
             .extend_ttl(&DataKey::Registry, TTL_THRESHOLD, TTL_TARGET);
         env.storage().instance().set(&DataKey::Initialized, &true);
+        // Extend the instance storage TTL so the Initialized guard itself does not expire.
+        // Without this, a dormant contract could have its instance storage archived and
+        // the initialization guard lost, allowing re-initialization by an attacker.
+        env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_TARGET);
         Ok(())
     }
 

@@ -13,7 +13,13 @@ pub enum CredentialStatus {
     /// Revoked credentials cannot be renewed or reused.
     Revoked,
     /// Credential's expiry timestamp has passed.
-    /// This is a computed state — stored status may still be Active.
+    ///
+    /// **IMPORTANT: This is a computed/display state only — the Registry never writes
+    /// `Expired` to on-chain storage.** On-chain, an expired credential is stored as
+    /// `Active` with `expires_at < current_ledger_timestamp`. The `Expired` variant
+    /// exists for frontend display purposes and SDK convenience. Do NOT match this
+    /// variant against data read directly from the chain — `require_valid_credential`
+    /// will still panic for an expired-but-`Active`-stored credential.
     Expired,
 }
 
