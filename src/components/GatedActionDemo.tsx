@@ -162,10 +162,11 @@ export function GatedActionDemo({ credentials, walletAddress, signTransaction }:
 
       {activeCredentials.length > 1 && (
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ color: '#a0aec0', fontSize: '0.8rem', display: 'block', marginBottom: '0.3rem' }}>
+          <label htmlFor="credential-select" style={{ color: '#a0aec0', fontSize: '0.8rem', display: 'block', marginBottom: '0.3rem' }}>
             Select credential:
           </label>
           <select
+            id="credential-select"
             value={selected?.nullifier ?? ''}
             onChange={e => setSelected(activeCredentials.find(c => c.nullifier === e.target.value) ?? null)}
             style={{ padding: '0.4rem 0.75rem', borderRadius: '6px', border: '1px solid #4a5568', background: '#1a202c', color: '#e2e8f0', fontSize: '0.875rem' }}

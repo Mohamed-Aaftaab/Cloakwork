@@ -232,6 +232,9 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       setSubmitError(mapped);
       proof.setSubmitStatus('submit_error', mapped);
     }
+  // proof is a new object reference every render (because useCloakworkProof spreads state),
+  // so handleSubmit is recreated each render. This is acceptable: the callback only runs
+  // on user click, never on a hot render path, so the re-creation cost is negligible.
   }, [proof, walletAddress, signTransaction, onProofSubmitted]);
 
   if (!['proof_ready', 'submitting', 'submit_error', 'credential_issued'].includes(proof.status)) {
