@@ -28,6 +28,7 @@ function App() {
 
       {/* Tab navigation */}
       <nav
+        aria-label="Main tabs"
         style={{
           display: 'flex',
           gap: '0',
