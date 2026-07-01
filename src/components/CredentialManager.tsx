@@ -243,7 +243,7 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
         </div>
       )}
 
-      {!loading && credentials.length === 0 && !error && (
+      {!loading && credentials.filter(c => c.status !== 'Revoked').length === 0 && !error && (
         <div style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', border: '1px solid #2d3748' }}>
           <p style={{ color: 'rgba(247,249,250,0.58)', fontSize: '0.875rem', margin: 0 }}>
             No credentials found for this wallet on testnet. Complete the "Create Proof" flow to issue one.
@@ -252,19 +252,22 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
       )}
 
       {credentials.map(cred => (
-        <div key={cred.nullifier} style={{ marginBottom: '1rem' }}>
-          <CredentialCard
-            credential={cred}
-            networkExplorerBase={EXPLORER}
-            onRevoke={cred.status === 'Active' ? () => handleRevoke(cred.nullifier) : undefined}
-            onRenew={(cred.status === 'Active' || cred.status === 'Expired') ? () => handleRenew(cred.nullifier) : undefined}
-          />
-          {actionPending === cred.nullifier && (
-            <p style={{ color: '#f6ad55', fontSize: '0.8rem', marginTop: '0.25rem' }}>
-              ⏳ Submitting transaction…
-            </p>
-          )}
-        </div>
+        // Only show Active and Expired credentials — Revoked ones are hidden from the list
+        cred.status !== 'Revoked' && (
+          <div key={cred.nullifier} style={{ marginBottom: '1rem' }}>
+            <CredentialCard
+              credential={cred}
+              networkExplorerBase={EXPLORER}
+              onRevoke={cred.status === 'Active' ? () => handleRevoke(cred.nullifier) : undefined}
+              onRenew={(cred.status === 'Active' || cred.status === 'Expired') ? () => handleRenew(cred.nullifier) : undefined}
+            />
+            {actionPending === cred.nullifier && (
+              <p style={{ color: '#f6ad55', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                ⏳ Submitting transaction…
+              </p>
+            )}
+          </div>
+        )
       ))}
     </div>
   );
