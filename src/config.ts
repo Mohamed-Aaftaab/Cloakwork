@@ -27,3 +27,18 @@ export const config: AppConfig = {
     process.env.REACT_APP_CLOAKWORK_VERIFIER_CONTRACT_ID ?? '',
   gatedActionContractId: process.env.REACT_APP_GATED_ACTION_CONTRACT_ID ?? '',
 };
+
+// Warn at startup if required contract IDs are missing — surfaces misconfiguration early
+// rather than producing cryptic RPC errors at runtime.
+if (!config.registryContractId) {
+  console.error(
+    '[Cloakwork] REACT_APP_CLOAKWORK_REGISTRY_CONTRACT_ID is not set. ' +
+    'Credential issuance and management will not work. Check your .env file.'
+  );
+}
+if (!config.gatedActionContractId) {
+  console.warn(
+    '[Cloakwork] REACT_APP_GATED_ACTION_CONTRACT_ID is not set. ' +
+    'The Gated Action demo will not work. Check your .env file.'
+  );
+}

@@ -57,26 +57,6 @@ export async function deriveCommitment(
 }
 
 /**
- * Compute `Poseidon(domain_bytes, secret)` — unique per domain+secret pair.
- *
- * Used for: nullifier (anti-replay enforcement in the Registry contract)
- *
- * @param domainBytes - Raw bytes of the domain name
- * @param secret - 32-byte secret (stays in browser, never on-chain)
- * @returns 32-byte nullifier suitable for on-chain submission
- */
-export async function deriveNullifier(
-  domainBytes: Uint8Array,
-  secret: Uint8Array
-): Promise<Uint8Array> {
-  const poseidon = await getPoseidon();
-  const domainInt = bytesToBigInt(domainBytes);
-  const secretInt = bytesToBigInt(secret);
-  const result = poseidon([domainInt, secretInt]);
-  return bigIntToBytes32(result);
-}
-
-/**
  * Format a TXT record value in the Cloakwork challenge format.
  *
  * Format: `clkwk:v1:<owner_commitment_hex>:<nonce_commitment_hex>`

@@ -3,7 +3,6 @@ import { useCloakworkProof, ProofFlowStatus } from '../hooks/useCloakworkProof';
 
 interface Props {
   proof: ReturnType<typeof useCloakworkProof>;
-  onSubmitClick: () => void;
 }
 
 type StepStatus = 'pending' | 'active' | 'done' | 'error';
@@ -27,11 +26,35 @@ const STEPS: Step[] = [
 
 const TOTAL_ESTIMATED = STEPS.reduce((s, step) => s + step.estimatedSeconds, 0);
 
-function stepStatus(step: Step, status: ProofFlowStatus): StepStatus {
+// Returns the sequential step status based on elapsed time while proving.
+// Steps progress one-at-a-time: once accumulated time passes a step's budget, it's "done"
+// and the next one becomes "active". All previous steps are "done", future ones are "pending".
+function stepStatusForElapsed(
+  step: Step,
+  index: number,
+  status: ProofFlowStatus,
+  elapsed: number
+): StepStatus {
+  // Terminal states — all non-"done" steps show done/error uniformly
   if (step.doneOn.includes(status)) return 'done';
   if (step.errorOn.includes(status)) return 'error';
-  if (step.activeOn.includes(status)) return 'active';
-  return 'pending';
+
+  // Not currently proving — pending
+  if (!step.activeOn.includes(status)) return 'pending';
+
+  // Currently proving — derive sequential step from elapsed time
+  let budget = 0;
+  for (let i = 0; i < STEPS.length; i++) {
+    budget += STEPS[i].estimatedSeconds;
+    if (elapsed < budget) {
+      // This step's budget hasn't been consumed yet
+      if (i === index) return 'active';   // this is the current step
+      if (i > index) return 'pending';    // future step
+      return 'done';                       // past step
+    }
+  }
+  // All budgets consumed but still proving — last real step is still active
+  return index === STEPS.length - 2 ? 'active' : 'done';
 }
 
 const DOT: Record<StepStatus, { symbol: string; color: string }> = {
@@ -42,7 +65,7 @@ const DOT: Record<StepStatus, { symbol: string; color: string }> = {
 };
 
 /** Step 3 — Proof generation timeline with time estimate and submit button. */
-export function ProofGenerator({ proof, onSubmitClick }: Props) {
+export function ProofGenerator({ proof }: Props) {
   const [elapsed, setElapsed] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
 
@@ -86,8 +109,8 @@ export function ProofGenerator({ proof, onSubmitClick }: Props) {
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.75rem' }}>
-        {STEPS.map(step => {
-          const s = stepStatus(step, proof.status);
+        {STEPS.map((step, index) => {
+          const s = stepStatusForElapsed(step, index, proof.status, elapsed);
           const { symbol, color } = DOT[s];
           return (
             <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -131,16 +154,13 @@ export function ProofGenerator({ proof, onSubmitClick }: Props) {
       {proof.status === 'proof_ready' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '500px' }}>
           <div style={{ background: '#1a202c', border: '1px solid #2d3748', borderRadius: '8px', padding: '0.75rem', fontSize: '0.8rem' }}>
-            <div style={{ color: '#68d391', marginBottom: '0.25rem' }}>Proof generated</div>
+            <div style={{ color: '#68d391', marginBottom: '0.25rem' }}>✓ Proof generated — ready to submit</div>
             {proof.proofSizeBytes && <div style={{ color: '#718096' }}>Size: {proof.proofSizeBytes} bytes</div>}
             {proof.publicSignals && <div style={{ color: '#718096' }}>{proof.publicSignals.length} public signals</div>}
+            <div style={{ color: '#4a5568', fontSize: '0.73rem', marginTop: '0.4rem' }}>
+              Use the "Submit to Soroban" button below to issue your credential.
+            </div>
           </div>
-          <button
-            onClick={onSubmitClick}
-            style={{ padding: '10px 22px', fontSize: '0.9rem', border: '1px solid #68d391', borderRadius: '8px', background: '#68d39122', color: '#68d391', cursor: 'pointer', fontWeight: 700, alignSelf: 'flex-start' }}
-          >
-            Submit to Soroban →
-          </button>
         </div>
       )}
     </div>

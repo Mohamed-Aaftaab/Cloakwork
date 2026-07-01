@@ -28,7 +28,7 @@ export function ProofWorkspace({ wallet }: Props) {
       <PrivacyPanel />
       <DNSChallengeGuide proof={proof} walletAddress={wallet.address ?? ''} />
       <DNSSECCheck proof={proof} />
-      <ProofGenerator proof={proof} onSubmitClick={proof.generateProof} />
+      <ProofGenerator proof={proof} />
       <VerificationPanel
         proof={proof}
         walletAddress={wallet.address ?? ''}

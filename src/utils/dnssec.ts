@@ -111,13 +111,17 @@ export async function fetchDNSSECMaterial(domain: string): Promise<DNSSECMateria
 
   // Find DNSKEY in Authority section (type 48)
   const dnskeyRecord = data.Authority?.find((r) => r.type === 48) ?? null;
+  if (!dnskeyRecord) {
+    // DNSKEY not present in the DoH response — zone may not be fully DNSSEC-signed
+    throw new DNSSECMissingError(domain);
+  }
 
   // Encode to Uint8Array for circuit consumption
   const encoder = new TextEncoder();
   return {
     rrset: encoder.encode(JSON.stringify(data.Answer ?? [])),
     rrsig: encoder.encode(rrsigRecord.data),
-    dnskey: encoder.encode(dnskeyRecord?.data ?? ''),
+    dnskey: encoder.encode(dnskeyRecord.data),
     notBefore,
     notAfter,
   };
@@ -163,14 +167,15 @@ function parseRRSIGWindow(rdata: string): { notBefore: number; notAfter: number 
  */
 function parseRRSIGTimestamp(s: string): number {
   if (s.length === 14 && /^\d+$/.test(s)) {
-    // YYYYMMDDHHmmSS format
-    const year = parseInt(s.slice(0, 4));
-    const month = parseInt(s.slice(4, 6)) - 1;
-    const day = parseInt(s.slice(6, 8));
-    const hour = parseInt(s.slice(8, 10));
-    const min = parseInt(s.slice(10, 12));
-    const sec = parseInt(s.slice(12, 14));
-    return Math.floor(new Date(year, month, day, hour, min, sec).getTime() / 1000);
+    // YYYYMMDDHHmmSS format — RRSIG timestamps are always UTC
+    const year  = parseInt(s.slice(0, 4));
+    const month = parseInt(s.slice(4, 6)) - 1; // Date.UTC month is 0-indexed
+    const day   = parseInt(s.slice(6, 8));
+    const hour  = parseInt(s.slice(8, 10));
+    const min   = parseInt(s.slice(10, 12));
+    const sec   = parseInt(s.slice(12, 14));
+    // Use Date.UTC — NOT new Date(...) which interprets args as local time
+    return Math.floor(Date.UTC(year, month, day, hour, min, sec) / 1000);
   }
   const n = parseInt(s);
   return isNaN(n) ? 0 : n;

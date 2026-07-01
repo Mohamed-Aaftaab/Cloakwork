@@ -252,7 +252,7 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
             credential={cred}
             networkExplorerBase={EXPLORER}
             onRevoke={cred.status === 'Active' ? () => handleRevoke(cred.nullifier) : undefined}
-            onRenew={cred.status === 'Active' ? () => handleRenew(cred.nullifier) : undefined}
+            onRenew={(cred.status === 'Active' || cred.status === 'Expired') ? () => handleRenew(cred.nullifier) : undefined}
           />
           {actionPending === cred.nullifier && (
             <p style={{ color: '#f6ad55', fontSize: '0.8rem', marginTop: '0.25rem' }}>

@@ -26,6 +26,7 @@ interface Props {
 export function GatedActionSection({ walletAddress, signTransaction }: Props) {
   const [credentials, setCredentials] = useState<CredentialData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (walletAddress && config.registryContractId) {
@@ -37,6 +38,7 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
   async function loadCredentials() {
     if (!walletAddress || !config.registryContractId) return;
     setLoading(true);
+    setLoadError(null);
     try {
       const server = new StellarRpc.Server(config.rpcUrl);
       const contract = new Contract(config.registryContractId);
@@ -118,8 +120,8 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
         }
       }
       setCredentials(loaded);
-    } catch {
-      // Silently fail — user sees empty state
+    } catch (err: unknown) {
+      setLoadError(err instanceof Error ? err.message : 'Failed to load credentials from registry');
     } finally {
       setLoading(false);
     }
@@ -133,6 +135,12 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
         <p style={{ color: '#718096', fontSize: '0.875rem', marginBottom: '1rem' }}>
           Loading credentials from registry…
         </p>
+      )}
+
+      {loadError && (
+        <div role="alert" style={{ color: '#fc8181', fontSize: '0.875rem', marginBottom: '1rem', padding: '0.75rem', background: '#fc818111', border: '1px solid #fc818133', borderRadius: '6px' }}>
+          {loadError}
+        </div>
       )}
 
       {!loading && credentials.length === 0 && (

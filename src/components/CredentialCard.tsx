@@ -93,9 +93,9 @@ export function CredentialCard({ credential, onRevoke, onRenew, networkExplorerB
         </p>
       </div>
 
-      {credential.status === 'Active' && (
+      {(credential.status === 'Active' || credential.status === 'Expired') && (onRevoke || onRenew) && (
         <div style={{ background: '#1a202c', padding: '0.75rem 1rem', display: 'flex', gap: '0.5rem' }}>
-          {onRevoke && (
+          {onRevoke && credential.status === 'Active' && (
             <button
               onClick={onRevoke}
               style={{ padding: '5px 12px', fontSize: '0.78rem', border: '1px solid #fc8181', borderRadius: '5px', background: 'transparent', color: '#fc8181', cursor: 'pointer' }}
