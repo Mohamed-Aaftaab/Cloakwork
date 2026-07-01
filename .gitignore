@@ -2,7 +2,6 @@ target/
 node_modules/
 .env
 *.ptau
-*.zkey
 build/
 dist/
 
