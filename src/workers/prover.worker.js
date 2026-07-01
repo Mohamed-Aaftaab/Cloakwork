@@ -33,8 +33,11 @@ async function buildWitnessInputs(payload) {
   const ownerBytes  = new TextEncoder().encode(challenge.walletAddress);
 
   // Convert bytes to field elements — circomlibjs Poseidon automatically
-  // reduces inputs modulo the BN254 scalar field order r, so no manual
-  // modular reduction is needed here.
+  // reduces inputs modulo the BN254 scalar field order r (~254 bits), so inputs
+  // larger than r (e.g. a long rrset JSON string → big BigInt) are handled correctly.
+  // The pre-reduction value is used as the private witness signal; the circuit
+  // constraint checks Poseidon(record_bytes_hash, nonce) == record_commitment,
+  // and snarkjs performs the field reduction when building the witness.
   const domainBigInt = bytesToBigInt(domainBytes);
   const nonceBigInt  = bytesToBigInt(nonce);
   const secretBigInt = bytesToBigInt(secret);

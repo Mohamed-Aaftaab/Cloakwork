@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Contract,
   Networks,
@@ -61,11 +61,9 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
   // isSubmitting is derived from the proof state machine
   const isSubmitting = proof.status === 'submitting';
 
-  if (!['proof_ready', 'submitting', 'submit_error', 'credential_issued'].includes(proof.status)) {
-    return null;
-  }
-
-  async function handleSubmit() {
+  // handleSubmit is defined before the conditional return so it is always
+  // declared in the same position each render (satisfies rules-of-hooks intent).
+  const handleSubmit = useCallback(async () => {
     if (!proof.proof || !proof.publicSignals) {
       setSubmitError('Proof not ready. Please generate the ZK proof first.');
       return;
@@ -234,6 +232,10 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       setSubmitError(mapped);
       proof.setSubmitStatus('submit_error', mapped);
     }
+  }, [proof, walletAddress, signTransaction, onProofSubmitted]);
+
+  if (!['proof_ready', 'submitting', 'submit_error', 'credential_issued'].includes(proof.status)) {
+    return null;
   }
 
   return (

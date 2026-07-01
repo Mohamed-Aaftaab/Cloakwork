@@ -342,7 +342,7 @@ export function useCloakworkProof(): CloakworkProofHook {
     error?: string
   ) => {
     if (error) {
-      setError(status as ProofFlowStatus, error);
+      setError(status, error);
     } else {
       setStatus(status);
     }

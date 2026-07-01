@@ -45,10 +45,11 @@ export function DNSChallengeGuide({ proof, walletAddress }: Props) {
 
       {!isGenerated && (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '420px' }}>
-          <label style={{ color: '#a0aec0', fontSize: '0.85rem' }}>
+          <label htmlFor="domain-input" style={{ color: '#a0aec0', fontSize: '0.85rem' }}>
             Domain name
           </label>
           <input
+            id="domain-input"
             type="text"
             value={domain}
             onChange={e => setDomain(e.target.value)}
