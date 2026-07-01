@@ -1,25 +1,36 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/landing.html"
+      "src": "^/$",
+      "dest": "/landing.html"
     },
     {
-      "source": "/app",
-      "destination": "/index.html"
+      "src": "^/app$",
+      "dest": "/index.html"
     },
     {
-      "source": "/app/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
+      "src": "^/app/(.*)$",
+      "dest": "/index.html"
+    },
     {
-      "source": "/circuits/(.*)",
-      "headers": [
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-        { "key": "Cross-Origin-Embedder-Policy", "value": "require-corp" }
-      ]
+      "src": "^/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "^/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "^/circuits/(.*)",
+      "dest": "/circuits/$1",
+      "headers": {
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "require-corp"
+      }
+    },
+    {
+      "src": "^/(.*)",
+      "dest": "/$1"
     }
   ],
   "buildCommand": "npm run build",
