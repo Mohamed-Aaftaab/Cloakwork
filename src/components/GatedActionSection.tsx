@@ -59,7 +59,11 @@ export function GatedActionSection({ walletAddress, signTransaction }: Props) {
         .build();
 
       const listSim = await server.simulateTransaction(listTx);
-      if (StellarRpc.Api.isSimulationError(listSim)) return;
+      if (StellarRpc.Api.isSimulationError(listSim)) {
+        setCredentials([]);
+        setLoadError('Failed to load credentials from registry.');
+        return;
+      }
 
       const retval = listSim.result?.retval;
       if (!retval) { setCredentials([]); return; }

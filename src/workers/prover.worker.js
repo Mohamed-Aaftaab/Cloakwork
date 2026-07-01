@@ -28,6 +28,7 @@ async function buildWitnessInputs(payload) {
   const secret  = new Uint8Array(challenge.secret);
   const rrset   = new Uint8Array(dnssecMaterial.rrset);
   const dnskey  = new Uint8Array(dnssecMaterial.dnskey);
+  // rrsig is validated on the frontend (timestamp window) but the circuit does not consume it
   // Use the actual wallet address bytes for owner_bytes_hash
   const ownerBytes  = new TextEncoder().encode(challenge.walletAddress);
 
@@ -72,7 +73,8 @@ async function buildWitnessInputs(payload) {
     not_before:        dnssecMaterial.notBefore.toString(),
     not_after:         dnssecMaterial.notAfter.toString(),
     dnskey_root_hash:  dnskeyRootHash.toString(),
-    verifier_version:  '1',
+    // Read version from payload — defaults to 1 if not provided
+    verifier_version:  String(challenge.verifierVersion ?? 1),
   };
 }
 

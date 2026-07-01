@@ -313,7 +313,11 @@ impl CloakworkRegistry {
             return Err(RegistryError::InvalidPublicInputs);
         }
 
-        cred.expires_at = new_expires_at;
+        // Cap renewal to MAX_CREDENTIAL_TTL_SECS (30 days) from now — consistent with issuance policy.
+        let max_expiry = now.saturating_add(MAX_CREDENTIAL_TTL_SECS);
+        let capped_expiry = if new_expires_at > max_expiry { max_expiry } else { new_expires_at };
+
+        cred.expires_at = capped_expiry;
         env.storage().persistent().set(&cred_key, &cred);
         env.storage()
             .persistent()

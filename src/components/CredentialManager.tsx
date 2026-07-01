@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Contract,
   rpc as StellarRpc,
@@ -29,14 +29,7 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionPending, setActionPending] = useState<string | null>(null); // nullifier of in-progress action
 
-  useEffect(() => {
-    if (walletAddress && config.registryContractId) {
-      loadCredentials();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletAddress]);
-
-  async function loadCredentials() {
+  const loadCredentials = useCallback(async () => {
     if (!walletAddress || !config.registryContractId) return;
     setLoading(true);
     setError(null);
@@ -98,7 +91,13 @@ export function CredentialManager({ walletAddress, signTransaction }: Props) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [walletAddress]);
+
+  useEffect(() => {
+    if (walletAddress && config.registryContractId) {
+      loadCredentials();
+    }
+  }, [walletAddress, loadCredentials]);
 
   async function handleRevoke(nullifierHex: string) {
     if (!walletAddress || !config.registryContractId) return;

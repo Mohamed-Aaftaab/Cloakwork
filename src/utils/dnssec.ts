@@ -152,8 +152,14 @@ function parseRRSIGWindow(rdata: string): { notBefore: number; notAfter: number 
   // Expiration is at index 4, inception at index 5 in standard RRSIG rdata
   if (parts.length >= 6) {
     const expiration = parseRRSIGTimestamp(parts[4]);
-    const inception = parseRRSIGTimestamp(parts[5]);
+    const inception  = parseRRSIGTimestamp(parts[5]);
     if (expiration > 0 && inception > 0) {
+      if (expiration <= inception) {
+        throw new Error(
+          'RRSIG validity window is invalid: expiration is not after inception. ' +
+          'The DNSSEC record may be malformed.'
+        );
+      }
       return { notBefore: inception, notAfter: expiration };
     }
   }

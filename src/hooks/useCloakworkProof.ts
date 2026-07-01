@@ -303,10 +303,10 @@ export function useCloakworkProof(): CloakworkProofHook {
           secret: Array.from(secret),
           walletAddress,
           ownerCommitment: ownerCommitment ?? '',
+          verifierVersion: 1,
         },
         dnssecMaterial: {
           rrset: Array.from(dnssecMaterial.rrset),
-          rrsig: Array.from(dnssecMaterial.rrsig),
           dnskey: Array.from(dnssecMaterial.dnskey),
           notBefore: dnssecMaterial.notBefore,
           notAfter: dnssecMaterial.notAfter,
@@ -322,7 +322,9 @@ export function useCloakworkProof(): CloakworkProofHook {
     } catch (err: unknown) {
       setError('proof_error', err instanceof Error ? err.message : 'Proof generation failed');
     }
-  }, [state, setStatus, setError]);
+  // Narrow deps: only domain + ownerCommitment from state; ref reads are stable
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.domain, state.ownerCommitment, setStatus, setError]);
 
   // ── reset ────────────────────────────────────────────────────────────────
 
@@ -368,10 +370,12 @@ interface WorkerPayload {
     secret: number[];
     walletAddress: string;
     ownerCommitment: string;
+    /** Circuit version to use — defaults to 1 */
+    verifierVersion: number;
   };
   dnssecMaterial: {
     rrset: number[];
-    rrsig: number[];
+    // rrsig is validated on the frontend (timestamp window) but not consumed by the circuit
     dnskey: number[];
     notBefore: number;
     notAfter: number;

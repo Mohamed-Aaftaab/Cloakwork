@@ -40,6 +40,12 @@ function mapError(raw: string): string {
 
 const EXPLORER = 'https://stellar.expert/explorer/testnet';
 
+/** Convert a decimal string field element to a zero-padded 64-char hex string. */
+function decimalToHex(dec: string): string {
+  const n = BigInt(dec);
+  return n.toString(16).padStart(64, '0');
+}
+
 /**
  * Step 4 — Submit the ZK proof to the cloakwork_registry Soroban contract
  * and display the issued DomainCredential.
@@ -189,12 +195,6 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
       const notAfterFallback = Number(proof.publicSignals[5] ?? now + 2_592_000);
       const expiryFallback = Math.min(notAfterFallback, now + 2_592_000);
 
-      // Convert public signal decimal strings to hex for consistent display
-      function decimalToHex(dec: string): string {
-        const n = BigInt(dec);
-        return n.toString(16).padStart(64, '0');
-      }
-
       let issuedCredential: CredentialData = {
         commitment: decimalToHex(proof.publicSignals[0] ?? '0'),
         nullifier: decimalToHex(proof.publicSignals[3] ?? '0'),
@@ -276,8 +276,11 @@ export function VerificationPanel({ proof, walletAddress, signTransaction, onPro
 
       {credential && (
         <div>
-          <p style={{ color: '#68d391', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+          <p style={{ color: '#68d391', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
             ✓ Credential issued on Stellar testnet
+          </p>
+          <p style={{ color: '#718096', fontSize: '0.78rem', marginBottom: '0.75rem' }}>
+            Switch to the <strong style={{ color: '#a0aec0' }}>My Credentials</strong> tab to manage this credential (Revoke / Renew).
           </p>
           <CredentialCard credential={credential} networkExplorerBase={EXPLORER} />
         </div>
